@@ -1,0 +1,38 @@
+name: Check Branch Naming
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches-ignore:
+      - main
+      - develop
+      - release/*
+
+jobs:
+  check-branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
+          
+          echo "🔍 Checking branch: $BRANCH_NAME"
+          
+          # Игнорируем защищённые ветки
+          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "develop" || "$BRANCH_NAME" =~ ^release/ ]]; then
+            echo "✅ Protected branch: $BRANCH_NAME"
+            exit 0
+          fi
+
+          # Проверяем формат (только feature/ и fix/)
+          if [[ ! "$BRANCH_NAME" =~ ^(feature|fix)/[0-9]+-[a-z0-9-]+$ ]]; then
+            echo "::error ::Invalid branch name: $BRANCH_NAME"
+            echo "✅ Valid format: feature/task-number-title or fix/task-number-title"
+            echo "Examples:"
+            echo "  - feature/23-add-login-form"
+            echo "  - fix/45-correct-calculation"
+            exit 1
+          fi
+          
+          echo "✅ Branch name is valid: $BRANCH_NAME"
