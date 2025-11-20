@@ -22,9 +22,9 @@ if echo "$MESSAGE" | grep -qE "^Revert "; then
 fi
 
 # Проверяем первую строку
-if ! echo "$MESSAGE" | grep -qE "^#[0-9]+ (feat|fix|docs|style|refactor|test|chore|perf)(\([a-z]+\))?: .+"; then
+if ! echo "$MESSAGE" | grep -qE "^#[0-9]+ (feat|fix|docs|style|refac|test|chore|perf)(\([a-z]+\))?: .+"; then
   echo "❌ Коммит должен иметь структуру: #[task-number] type[(scope)]: description"
-  echo "Где type один из: feat, fix, docs, style, refactor, test, chore, perf"
+  echo "Где type один из: feat, fix, docs, style, refac, test, chore, perf"
   echo "Примеры:"
   echo "  #1 feat: Add login form"
   echo "  #1 feat(auth): Add login form" 

@@ -33,7 +33,7 @@ jobs:
                   while IFS= read -r commit; do
                     if [ -n "$commit" ]; then
                       echo "Checking: '$commit'"
-                      if [[ "$commit" =~ ^#[0-9]+[[:space:]](feat|fix|docs|style|refactor|test|chore|perf)(\([a-z]+\))?:[[:space:]].+ ]]; then
+                      if [[ "$commit" =~ ^#[0-9]+[[:space:]](feat|fix|docs|style|refac|test|chore|perf)(\([a-z]+\))?:[[:space:]].+ ]]; then
                         echo "✅ Valid"
                       else
                         echo "❌ Invalid"
