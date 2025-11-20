@@ -1,0 +1,51 @@
+name: Check Commit Messages
+
+on:
+    pull_request:
+        types: [opened, synchronize]
+
+jobs:
+    check-commits:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Validate commit messages
+              run: |
+                  echo "🔍 Checking commit messages in PR..."
+
+                  # Получаем коммиты из PR
+                  if [ -n "${{ github.event.pull_request.number }}" ]; then
+                    # Для PR
+                    COMMITS=$(git log --format=%s ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+                  else
+                    # Для прямого пуша
+                    COMMITS=$(git log --format=%s -1)
+                  fi
+
+                  echo "Found commits:"
+                  echo "$COMMITS"
+                  echo "---"
+
+                  INVALID_COUNT=0
+                  while IFS= read -r commit; do
+                    if [ -n "$commit" ]; then
+                      echo "Checking: '$commit'"
+                      if [[ "$commit" =~ ^#[0-9]+[[:space:]](feat|fix|docs|style|refac|test|chore|perf)(\([a-z]+\))?:[[:space:]].+ ]]; then
+                        echo "✅ Valid"
+                      else
+                        echo "❌ Invalid"
+                        INVALID_COUNT=$((INVALID_COUNT + 1))
+                      fi
+                    fi
+                  done <<< "$COMMITS"
+
+                  if [ $INVALID_COUNT -gt 0 ]; then
+                    echo "::error ::Found $INVALID_COUNT invalid commit message(s)"
+                    echo "Commit must follow: #[task-number] type[(scope)]: description"
+                    exit 1
+                  fi
+
+                  echo "✅ All commit messages are valid!"

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Этот хук срабатывает после checkout и создания веток
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Игнорируем начальный checkout
+if [[ "$CURRENT_BRANCH" == "" ]]; then
+  exit 0
+fi
+
+# Предупреждаем о защищённых ветках (но разрешаем работу)
+if [[ "$CURRENT_BRANCH" == "main" || "$CURRENT_BRANCH" == "develop" || "$CURRENT_BRANCH" =~ ^release/ ]]; then
+  echo "⚠️  Вы в защищённой ветке $CURRENT_BRANCH"
+  echo "   Создайте feature-ветку для внесения изменений"
+fi
+
+# Предупреждаем о плохом названии ветки (но не блокируем)
+if [[ ! "$CURRENT_BRANCH" =~ ^(feature|fix)/[0-9]+-[a-z0-9-]+$ ]]; then
+  echo "⚠️  Неправильное название ветки: $CURRENT_BRANCH"
+  echo "✅ Требуемый формат: (feature/fix)/номер-задачи-название"
+  echo "   Коммиты будут заблокированы в этой ветке!"
+fi

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+COMMIT_MSG_FILE=$1
+MESSAGE=$(cat "$COMMIT_MSG_FILE")
+
+# Игнорируем автоматические merge коммиты от GitHub
+if echo "$MESSAGE" | grep -qE "^Merge pull request #"; then
+  echo "✅ Merge commit - skipping validation"
+  exit 0
+fi
+
+# Игнорируем merge коммиты (обычные)
+if echo "$MESSAGE" | grep -qE "^Merge (branch|remote-tracking|commit)"; then
+  echo "✅ Merge commit - skipping validation" 
+  exit 0
+fi
+
+# Игнорируем revert коммиты
+if echo "$MESSAGE" | grep -qE "^Revert "; then
+  echo "✅ Revert commit - skipping validation"
+  exit 0
+fi
+
+# Проверяем первую строку
+if ! echo "$MESSAGE" | grep -qE "^#[0-9]+ (feat|fix|docs|style|refac|test|chore|perf)(\([a-z]+\))?: .+"; then
+  echo "❌ Коммит должен иметь структуру: #[task-number] type[(scope)]: description"
+  echo "Где type один из: feat, fix, docs, style, refac, test, chore, perf"
+  echo "Примеры:"
+  echo "  #1 feat: Add login form"
+  echo "  #1 feat(auth): Add login form" 
+  echo "  #1 fix: Correct calculation"
+  exit 1
+fi
+
+# Запускаем commitlint для остальных проверок
+npx --no -- commitlint --edit "$1"
