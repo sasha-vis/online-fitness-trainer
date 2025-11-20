@@ -28,11 +28,13 @@
         "eslint-plugin-react-refresh": "^0.4.24",
         "globals": "^16.5.0",
         "husky": "^9.1.7",
+        "prettier": "^3.6.2",
         "react-error-boundary": "^6.0.0",
         "react-hook-form": "^7.66.1",
         "sass": "^1.94.0",
         "typescript": "~5.9.3",
         "typescript-eslint": "^8.46.3",
-        "vite": "^7.2.2"
+        "vite": "^7.2.2",
+        "vite-tsconfig-paths": "^5.1.4"
     }
 }
