@@ -27,7 +27,13 @@ export default defineConfig([
         rules: {
             '@typescript-eslint/no-unused-vars': 'error',
             'prefer-const': 'error',
-            'comma-dangle': ['error', 'always-multiline'],
+            'comma-dangle': ['error', {
+                "arrays": "never",
+                "objects": "always-multiline",
+                "imports": "always-multiline",
+                "exports": "always-multiline",
+                'functions': 'never'
+            }],
             'react-hooks/exhaustive-deps': 'warn',
             'no-console': 'warn',
         },

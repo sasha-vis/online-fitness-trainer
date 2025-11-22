@@ -1,0 +1,14 @@
+{
+    "name": "online-fitness-trainer",
+    "version": "0.1.0",
+    "description": "Платформа-посредник между фитнес-тренерами и клиентами",
+    "type": "module",
+    "scripts": {
+        "prepare": "husky install"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^20.1.0",
+        "@commitlint/config-conventional": "^20.0.0",
+        "husky": "^9.1.7"
+    }
+}
