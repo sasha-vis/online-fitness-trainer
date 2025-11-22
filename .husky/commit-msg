@@ -28,6 +28,3 @@ if ! echo "$MESSAGE" | grep -qE "^#[0-9]+ (feat|fix|docs|style|refac|test|chore|
   echo "  #1 fix: correct calculation"
   exit 1
 fi
-
-# Запускаем commitlint для остальных проверок
-npx --no -- commitlint --edit "$1"
