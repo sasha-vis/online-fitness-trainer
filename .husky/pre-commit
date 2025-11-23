@@ -1,0 +1,31 @@
+#!/bin/bash
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_ROOT"
+
+echo "🎯 Running pre-commit checks..."
+
+# Сначала форматируем
+echo "🎨 Formatting code..."
+npm run format || exit 1
+
+# Потом проверяем линтером
+echo "🔍 Running linter..."
+
+# Проверяем какие файлы изменены
+CHANGED_FILES=$(git diff --cached --name-only)
+
+# Линтинг клиента если есть изменения в client/
+if echo "$CHANGED_FILES" | grep -q "client/"; then
+    echo "🔍 Linting client..."
+    npm run lint:client || exit 1
+fi
+
+# Линтинг сервера если есть изменения в server/
+if echo "$CHANGED_FILES" | grep -q "server/"; then
+    echo "🔍 Linting server..."
+    npm run lint:server || exit 1
+fi
+
+git add .
+
+echo "✅ Pre-commit checks passed!"

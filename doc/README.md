@@ -49,10 +49,19 @@
 - fix/\* - исправления багов
 - release/версия - подготовка релиза
 
-✅ Разрешено: feature/_ → develop, fix/_ → develop, release/_ → main
-❌ Запрещено: Прямые коммиты в main и develop
-❌ Запрещено: feature/_ → main, fix/\* → main
-❌ Запрещено: develop → main (только через release/\_)
+```
+✅ Разрешено:
+feature/_ → develop
+fix/_ → develop
+release/_ → main
+release/_ → develop (обратный мерж)
+
+❌ Запрещено:
+Прямые коммиты в main и develop
+feature/_ → main,
+fix/\* → main
+develop → main (только через release/\_)
+```
 
 ### Процесс разработки:
 
@@ -68,11 +77,11 @@
 ```
 ## Формат:
 
-! Только lower-case
+! Только lower-case для заголовка
 
 #номер задачи тип(область - опционально): описание
 
-тело (что было сделано) - опционально
+тело - опционально
 
 ## Типы коммитов:
 
@@ -94,7 +103,7 @@ perf:     Работа над скоростью проекта
 #38 test(components): add unit tests for Button component
 ```
 
-## Дополнительная информация о релизах
+## О релизах
 
 - В конце каждого спринта делаем новый релиз через release/\* ветку от девелоп
 
@@ -107,7 +116,7 @@ git push origin release/1.2.0
 
 # Если нашли баги - фиксим прямо в release/1.2.0
 git add .
-git commit -m "fix: #123 critical bug fix"
+git commit -m "#123 fix: critical bug fix"
 git push origin release/1.2.0
 
 # Мержим релиз в main
@@ -118,6 +127,7 @@ git pull origin main
 git tag -a v1.2.0 -m "Release 1.2.0"
 git push origin v1.2.0
 
+# Если в релизе были правки
 # Мержим релиз обратно в develop
 # Через PR: release/1.2.0 → develop
 # Чтобы перенести все фиксы из релиза обратно в разработку

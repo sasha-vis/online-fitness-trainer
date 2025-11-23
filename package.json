@@ -1,12 +1,25 @@
 {
     "name": "online-fitness-trainer",
-    "version": "0.1.0",
-    "description": "Платформа-посредник между фитнес-тренерами и клиентами",
     "type": "module",
     "scripts": {
-        "prepare": "husky install"
+        "install:all": "npm ci && npm run prepare && cd client && npm ci && cd ../server && npm ci",
+        "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+        "dev:client": "cd client && npm run dev",
+        "dev:server": "cd server && npm run dev",
+        "build": "npm run build:client && npm run build:server",
+        "build:client": "cd client && npm run build",
+        "build:server": "cd server && npm run build",
+        "lint": "npm run lint:client && npm run lint:server",
+        "lint:client": "cd client && npm run lint",
+        "lint:server": "cd server && npm run lint",
+        "format": "prettier --write \"**/*.{js,ts,jsx,tsx,json,css,md}\"",
+        "format:check": "prettier --check \"**/*.{js,ts,jsx,tsx,json,css,md}\"",
+        "prepare": "husky install",
+        "pre-commit": "npm run lint && npm run format"
     },
     "devDependencies": {
-        "husky": "^9.1.7"
+        "concurrently": "^9.2.1",
+        "husky": "^9.1.7",
+        "prettier": "^3.6.2"
     }
 }

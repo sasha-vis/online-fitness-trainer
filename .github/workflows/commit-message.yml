@@ -17,14 +17,8 @@ jobs:
               run: |
                   echo "🔍 Checking commit messages in PR..."
 
-                  # Получаем коммиты из PR
-                  if [ -n "${{ github.event.pull_request.number }}" ]; then
-                    # Для PR
-                    COMMITS=$(git log --format=%s ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
-                  else
-                    # Для прямого пуша
-                    COMMITS=$(git log --format=%s -1)
-                  fi
+                 
+                  COMMITS=$(git log --format=%s ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
 
                   echo "Found commits:"
                   echo "$COMMITS"
@@ -33,6 +27,13 @@ jobs:
                   INVALID_COUNT=0
                   while IFS= read -r commit; do
                     if [ -n "$commit" ]; then
+
+                      # ИГНОРИРУЕМ ВСЕ системные коммиты
+                      if echo "$commit" | grep -qE "^(Merge (pull request|branch|remote-tracking|commit)|Revert )"; then
+                        echo "✅ Skipping system commit: '$commit'"
+                        continue
+                      fi
+
                       echo "Checking: '$commit'"
                       if [[ "$commit" =~ ^#[0-9]+[[:space:]](feat|fix|docs|style|refac|test|chore|perf)(\([a-z]+\))?:[[:space:]].+ ]]; then
                         echo "✅ Valid"
