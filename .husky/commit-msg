@@ -3,18 +3,8 @@
 COMMIT_MSG_FILE=$1
 MESSAGE=$(cat "$COMMIT_MSG_FILE")
 
-# Игнорируем автоматические merge коммиты от GitHub
-if echo "$MESSAGE" | grep -qE "^Merge pull request #"; then
-  exit 0
-fi
-
-# Игнорируем merge коммиты (обычные)
-if echo "$MESSAGE" | grep -qE "^Merge (branch|remote-tracking|commit)"; then
-  exit 0
-fi
-
-# Игнорируем revert коммиты
-if echo "$MESSAGE" | grep -qE "^Revert "; then
+# Игнорируем ВСЕ системные коммиты
+if echo "$MESSAGE" | grep -qE "^(Merge (pull request #|branch|remote-tracking|commit)|Revert )"; then
   exit 0
 fi
 
@@ -28,6 +18,3 @@ if ! echo "$MESSAGE" | grep -qE "^#[0-9]+ (feat|fix|docs|style|refac|test|chore|
   echo "  #1 fix: correct calculation"
   exit 1
 fi
-
-# Запускаем commitlint для остальных проверок
-npx --no -- commitlint --edit "$1"

@@ -7,12 +7,9 @@ import { antdTheme } from '../styles/antd-theme';
 export const Providers: FC<{ children: ReactNode }> = ({ children }) => {
     return (
         <BrowserRouter>
-            <ConfigProvider
-                locale={ruRU}
-                theme={antdTheme}
-            >
+            <ConfigProvider locale={ruRU} theme={antdTheme}>
                 {children}
             </ConfigProvider>
         </BrowserRouter>
-    )
-}
+    );
+};

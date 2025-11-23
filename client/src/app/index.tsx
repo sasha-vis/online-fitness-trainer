@@ -6,9 +6,9 @@ import { Providers } from './providers';
 import { Router } from './router/router';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-	<React.StrictMode>
+    <React.StrictMode>
         <Providers>
             <Router />
         </Providers>
-	</React.StrictMode>
+    </React.StrictMode>
 );

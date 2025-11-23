@@ -1,32 +1,36 @@
 import js from '@eslint/js';
 import globals from 'globals';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
-import { defineConfig, globalIgnores } from 'eslint/config';
+import { defineConfig } from 'eslint/config';
 
 export default defineConfig([
-    globalIgnores(['dist']),
     {
-        files: ['**/*.{ts,tsx}'],
-        ignores: ['vite.config.ts'],
+        ignores: ['build/**', 'node_modules/**'],
+    },
+    {
+        files: ['**/*.ts'],
         extends: [
             js.configs.recommended,
             tseslint.configs.recommended,
             tseslint.configs.stylistic,
-            reactHooks.configs.flat.recommended,
-            reactRefresh.configs.vite,
         ],
         languageOptions: {
             ecmaVersion: 2020,
-            globals: globals.browser,
+            globals: {
+                ...globals.node,
+                ...globals.es2020,
+            },
             parserOptions: {
                 project: './tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
             },
         },
         rules: {
+            'no-console': 'off',
             '@typescript-eslint/no-unused-vars': 'error',
             'prefer-const': 'error',
+            'no-debugger': 'error',
+
             'comma-dangle': [
                 'error',
                 {
@@ -37,16 +41,24 @@ export default defineConfig([
                     functions: 'never',
                 },
             ],
-            'react-hooks/exhaustive-deps': 'warn',
-            'no-console': 'warn',
+
+            // Специфичные для ESM + Node.js
+            '@typescript-eslint/explicit-function-return-type': 'off',
+            '@typescript-eslint/no-explicit-any': 'warn',
+
+            // Для ESM модулей
+            '@typescript-eslint/no-require-imports': 'error',
+            '@typescript-eslint/no-import-type-side-effects': 'error',
         },
     },
     {
-        files: ['vite.config.ts'],
-        extends: [js.configs.recommended, tseslint.configs.recommended],
+        files: ['**/*.js'],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.node,
+        },
+        rules: {
+            'no-console': 'warn',
         },
     },
 ]);
