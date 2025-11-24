@@ -15,7 +15,8 @@
         "format": "prettier --write \"**/*.{js,ts,jsx,tsx,json,css,md}\"",
         "format:check": "prettier --check \"**/*.{js,ts,jsx,tsx,json,css,md}\"",
         "prepare": "husky install",
-        "pre-commit": "npm run lint && npm run format"
+        "seed": "cd server && npm run seed:users",
+        "pre-commit": "npm run format && npm run lint"
     },
     "devDependencies": {
         "concurrently": "^9.2.1",
