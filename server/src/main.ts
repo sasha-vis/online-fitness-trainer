@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { createApp } from './app.js';
-import { AppDataSource } from '@database/database.config.js';
+import { AppDataSource } from '@/database/database.config.js';
 
 const PORT = process.env.PORT || 3000;
 const app = createApp();
