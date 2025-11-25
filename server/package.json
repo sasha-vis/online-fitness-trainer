@@ -3,15 +3,18 @@
     "main": "src/main.ts",
     "type": "module",
     "scripts": {
-        "dev": "npx nodemon --exec \"npx tsx src/main.ts\"",
-        "build": "rimraf ./build && npx tsc",
-        "start": "npm run build && node build/main.js",
+        "dev": "npx nodemon",
+        "build": "rimraf ./build && tsc && tsc-alias",
+        "start": "node build/main.js",
         "copy-static": "rimraf public/* && cpx \"../client/dist/**/*\" public",
-        "seed:users": "npx tsx src/scripts/seed-users.ts",
+        "build:with-static": "npm run build && npm run copy-static",
         "lint": "eslint . --ext ts,js --report-unused-disable-directives --max-warnings 0",
         "lint:fix": "npm run lint -- --fix",
         "format": "prettier --write . --config ../.prettierrc",
-        "format:check": "prettier --check . --config ../.prettierrc"
+        "format:check": "prettier --check . --config ../.prettierrc",
+        "type-check": "tsc --noEmit --skipLibCheck",
+        "pre-commit": "npm run format && npm run type-check && npm run lint",
+        "seed:users": "npx tsx scripts/seed/seed-users.ts"
     },
     "dependencies": {
         "bcrypt": "^6.0.0",
@@ -45,6 +48,7 @@
         "prettier": "^3.6.2",
         "rimraf": "^6.1.0",
         "ts-node": "^10.9.2",
+        "tsc-alias": "^1.8.16",
         "tsx": "^4.20.6",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.47.0"

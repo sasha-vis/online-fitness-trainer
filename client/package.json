@@ -4,11 +4,13 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
+        "preview": "vite preview --host",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "lint:fix": "npm run lint -- --fix",
         "format": "prettier --write . --config ../.prettierrc",
         "format:check": "prettier --check . --config ../.prettierrc",
-        "preview": "vite preview --host"
+        "type-check": "tsc --noEmit --skipLibCheck",
+        "pre-commit": "npm run format && npm run type-check && npm run lint"
     },
     "dependencies": {
         "antd": "^5.28.1",

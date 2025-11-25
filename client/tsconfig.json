@@ -11,8 +11,7 @@
             "@app/*": ["./src/app/*"],
             "@pages/*": ["./src/pages/*"],
             "@widgets/*": ["./src/widgets/*"],
-            "@shared/*": ["./src/shared/*"],
-            "react": ["./node_modules/@types/react"]
+            "@shared/*": ["./src/shared/*"]
         },
 
         /* Bundler mode */

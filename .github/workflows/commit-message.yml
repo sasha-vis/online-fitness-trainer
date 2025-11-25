@@ -3,7 +3,7 @@ name: Check Commit Messages
 on:
     pull_request:
         branches: [develop, main]
-        types: [opened, synchronize]
+        types: [opened, synchronize, reopened, edited]
 
 jobs:
     check-commits:
@@ -17,7 +17,7 @@ jobs:
               run: |
                   echo "🔍 Checking commit messages in PR..."
 
-                 
+
                   COMMITS=$(git log --format=%s ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
 
                   echo "Found commits:"

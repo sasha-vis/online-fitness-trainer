@@ -4,6 +4,5 @@
 
 - [Запуск проекта](./doc/StartProject.md)
 - [Документация](./doc/README.md)
-- [Стили и иконки](./doc/StylesAndIcons.md)
 - [Скрипты](./doc/NpmScripts.md)
 - [Env](./doc/Env.md)
