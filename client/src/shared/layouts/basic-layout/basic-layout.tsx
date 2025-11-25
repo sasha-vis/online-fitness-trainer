@@ -1,22 +1,22 @@
-import styles from './basic-layout.module.scss';
 import { FC, ReactNode } from 'react';
+import styles from './basic-layout.module.scss';
 
 interface BasicLayoutProps {
-	headerSlot: ReactNode;
-	children: ReactNode;
-	footerSlot: ReactNode;
+    headerSlot: ReactNode;
+    children: ReactNode;
+    footerSlot: ReactNode;
 }
 
 export const BasicLayout: FC<BasicLayoutProps> = ({
-	headerSlot,
-	children,
-	footerSlot,
+    headerSlot,
+    children,
+    footerSlot,
 }) => {
-	return (
-		<div className={styles.layout_container}>
-			<>{headerSlot}</>
-			<>{children}</>
-			<>{footerSlot}</>
-		</div>
-	);
+    return (
+        <div className={styles.layout_container}>
+            <>{headerSlot}</>
+            <>{children}</>
+            <>{footerSlot}</>
+        </div>
+    );
 };
