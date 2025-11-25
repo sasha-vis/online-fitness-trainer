@@ -1,5 +1,5 @@
-import { AppDataSource } from '../config/database.config.js';
-import { User } from '../entities/user.entity.js';
+import { AppDataSource } from '../../src/core/database/database.config.js';
+import { User } from '../../src/modules/user/user.entity.js';
 import bcrypt from 'bcrypt';
 
 const userRepository = AppDataSource.getRepository(User);
@@ -13,9 +13,9 @@ const testUsers = [
     },
     {
         email: 'user2@example.com',
-        lastName: 'Smith',
         password: 'Password123',
         firstName: 'Jane',
+        lastName: 'Smith',
     },
     {
         email: 'trainer@example.com',
@@ -64,12 +64,6 @@ async function seedUsers() {
 
         console.log('🎉 Test users created successfully!');
         console.log('👥 Total users:', testUsers.length);
-
-        // Показываем созданных пользователей
-        const allUsers = await userRepository.find({
-            select: ['id', 'email', 'firstName', 'lastName', 'isActive'],
-        });
-        console.log('📋 Users in database:', allUsers);
 
         process.exit(0);
     } catch (error) {

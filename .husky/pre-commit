@@ -4,6 +4,17 @@ cd "$PROJECT_ROOT"
 
 echo "🎯 Running pre-commit checks..."
 
+# Получаем измененные файлы ДО форматирования
+CHANGED_FILES=$(git diff --cached --name-only)
+
+if [ -z "$CHANGED_FILES" ]; then
+    echo "📝 No staged changes found"
+    exit 0
+fi
+
+echo "📁 Changed files:"
+echo "$CHANGED_FILES"
+
 # Сначала форматируем
 echo "🎨 Formatting code..."
 npm run format || exit 1
@@ -11,19 +22,23 @@ npm run format || exit 1
 # Потом проверяем линтером
 echo "🔍 Running linter..."
 
-# Проверяем какие файлы изменены
-CHANGED_FILES=$(git diff --cached --name-only)
+CLIENT_CHANGED=$(echo "$CHANGED_FILES" | grep "client/" || true)
+SERVER_CHANGED=$(echo "$CHANGED_FILES" | grep "server/" || true)
 
-# Линтинг клиента если есть изменения в client/
-if echo "$CHANGED_FILES" | grep -q "client/"; then
+if [ -n "$CLIENT_CHANGED" ]; then
     echo "🔍 Linting client..."
     npm run lint:client || exit 1
+
+    echo "📋 Type checking client..."
+    npm run type-check:client || exit 1
 fi
 
-# Линтинг сервера если есть изменения в server/
-if echo "$CHANGED_FILES" | grep -q "server/"; then
+if [ -n "$SERVER_CHANGED" ]; then
     echo "🔍 Linting server..."
     npm run lint:server || exit 1
+
+    echo "📋 Type checking server..."
+    npm run type-check:server || exit 1
 fi
 
 git add .
