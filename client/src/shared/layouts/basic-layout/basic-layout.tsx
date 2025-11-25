@@ -1,5 +1,5 @@
-import styles from './basic-layout.module.scss';
 import { FC, ReactNode } from 'react';
+import styles from './basic-layout.module.scss';
 
 interface BasicLayoutProps {
     headerSlot: ReactNode;
