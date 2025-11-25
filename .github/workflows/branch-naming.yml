@@ -1,38 +1,50 @@
 name: Check Branch Naming
 
 on:
-  pull_request:
-    types: [opened, synchronize]
-  push:
-    branches-ignore:
-      - main
-      - develop
-      - release/*
+    pull_request:
+        branches: [develop, main]
+        types: [opened, synchronize, reopened, edited]
 
 jobs:
-  check-branch-name:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Validate branch name
-        run: |
-          BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
-          
-          echo "🔍 Checking branch: $BRANCH_NAME"
-          
-          # Игнорируем защищённые ветки
-          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "develop" || "$BRANCH_NAME" =~ ^release/ ]]; then
-            echo "✅ Protected branch: $BRANCH_NAME"
-            exit 0
-          fi
+    check-branch-name:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Validate branch name
+              run: |
+                  BRANCH_NAME="${{ github.head_ref }}"
+                  TARGET_BRANCH="${{ github.base_ref }}"
+                  echo "🔍 Checking PR: $BRANCH_NAME → $TARGET_BRANCH"
 
-          # Проверяем формат (только feature/ и fix/)
-          if [[ ! "$BRANCH_NAME" =~ ^(feature|fix)/[0-9]+-[a-z0-9-]+$ ]]; then
-            echo "::error ::Invalid branch name: $BRANCH_NAME"
-            echo "✅ Valid format: feature/task-number-title or fix/task-number-title"
-            echo "Examples:"
-            echo "  - feature/23-add-login-form"
-            echo "  - fix/45-correct-calculation"
-            exit 1
-          fi
-          
-          echo "✅ Branch name is valid: $BRANCH_NAME"
+                  # Для PR в main - только release
+                  if [[ "$TARGET_BRANCH" == "main" ]]; then
+
+                    # Release branches (формат: release/1.2.3)
+                    if [[ "$BRANCH_NAME" =~ ^release/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                      echo "✅ Release branch to main: $BRANCH_NAME"
+
+                    else
+                      echo "::error ::Invalid branch name for main: $BRANCH_NAME"
+                      echo "✅ Use: release/1.2.3"
+                      exit 1
+                    fi
+                  fi
+
+                  # Для PR в develop - только feature/fix и обратный мерж релиза
+                  if [[ "$TARGET_BRANCH" == "develop" ]]; then
+
+                    # Release branches (формат: release/1.2.3)
+                    if [[ "$BRANCH_NAME" =~ ^release/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                      echo "✅ Release branch to develop: $BRANCH_NAME"
+                    
+                    # Feature/fix branches (формат: (feature|fix)/123-title)
+                    elif [[ "$BRANCH_NAME" =~ ^(feature|fix)/[0-9]+-[a-z0-9-]+$ ]]; then
+                      echo "✅ Feature/fix branch to develop: $BRANCH_NAME"
+                    
+                    else
+                      echo "::error ::Invalid branch name for develop: $BRANCH_NAME"
+                      echo "✅ Use: feature/123-title, fix/456-title, or release/1.2.3"
+                      exit 1
+                    fi
+                  fi
+
+                  echo "✅ Branch name is valid: $BRANCH_NAME"

@@ -6,23 +6,21 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
     plugins: [react(), tsconfigPaths()],
     server: {
-        port: 3000,
+        port: 5173,
         proxy: {
             '/api': {
-                target: 'http://localhost:8080',
+                target: 'http://localhost:3000',
                 changeOrigin: true,
             },
         },
     },
     resolve: {
         alias: {
-			'@': path.resolve(__dirname, './src'),
-			'@app': path.resolve(__dirname, './src/app'),
-			'@pages': path.resolve(__dirname, './src/pages'),
-			'@widgets': path.resolve(__dirname, './src/widgets'),
+            '@': path.resolve(__dirname, './src'),
+            '@app': path.resolve(__dirname, './src/app'),
+            '@pages': path.resolve(__dirname, './src/pages'),
+            '@widgets': path.resolve(__dirname, './src/widgets'),
             '@shared': path.resolve(__dirname, './src/shared'),
-
-            '@common': '../../common/src',
-		},
+        },
     },
 });

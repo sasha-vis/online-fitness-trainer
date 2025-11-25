@@ -1,25 +1,36 @@
 {
-	"compilerOptions": {
-		"target": "es2018",
-		"lib": ["ES6"],
-		"module": "NodeNext",
-		"rootDir": "./src",
-		"resolveJsonModule": true,
-		"allowJs": true,
-		"checkJs": true,
-		"sourceMap": true,
-		"outDir": "./build",
-		"removeComments": true,
-		"strict": true,
-		"noImplicitAny": true,
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"skipLibCheck": true
-	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules"],
-	"lib": ["esnext"],
-	"ts-node": {
-		"esm": true
-	}
+    "compilerOptions": {
+        "target": "es2018",
+        "lib": ["ES6"],
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "rootDir": "./src",
+        "resolveJsonModule": true,
+        "allowJs": true,
+        "checkJs": true,
+        "sourceMap": true,
+        "outDir": "./build",
+        "removeComments": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "paths": {
+            "@utils/*": ["./src/utils/*"],
+            "@middleware/*": ["./src/middleware/*"],
+            "@modules/*": ["./src/modules/*"],
+            "@database/*": ["./src/database/*"],
+            "@routes/*": ["./src/routes/*"],
+            "@types/*": ["./src/types/*"]
+        }
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"],
+    "lib": ["esnext"],
+    "ts-node": {
+        "esm": true
+    }
 }
