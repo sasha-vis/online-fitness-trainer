@@ -9,7 +9,7 @@ export const Home = () => {
                 email: 'test@test.com',
                 role: 'trainer',
             },
-            '12345',
+            '12345'
         );
     };
     return (

@@ -13,9 +13,9 @@ export const Header = () => {
         navigate('/login');
     };
     return (
-        <header className={styles.header}>
+        <div className={styles.header_container}>
             <nav className={styles.left}>
-                {isAuthenticated && user ? (
+                {isAuthenticated && user?.id ? (
                     <>
                         <NavLink to={rolePrefix}>Главная</NavLink>
                         <NavLink to={`${rolePrefix}/nutrition`}>Питание</NavLink>
@@ -36,7 +36,7 @@ export const Header = () => {
                 )}
             </div>
             <div className={styles.right}>
-                {isAuthenticated && user && (
+                {isAuthenticated && user?.id && (
                     <>
                         <span className={styles.role}>
                             {user.role === 'trainer' ? 'Тренер' : 'Клиент'}
@@ -45,8 +45,7 @@ export const Header = () => {
                         <Button onClick={handleLogout}>Выйти</Button>
                     </>
                 )}
-                {!isAuthenticated && !user && <NavLink to="/login">Войти</NavLink>}
             </div>
-        </header>
+        </div>
     );
 };

@@ -1,4 +1,4 @@
-import { AppDataSource } from '@database/database.config.js';
+import { AppDataSource } from '@/database/database.config.js';
 import { User } from './user.entity.js';
 
 const userRepository = AppDataSource.getRepository(User);

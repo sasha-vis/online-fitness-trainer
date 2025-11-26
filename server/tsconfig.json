@@ -19,6 +19,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "paths": {
+            "@/*": ["./src/*"],
             "@utils/*": ["./src/utils/*"],
             "@middleware/*": ["./src/middleware/*"],
             "@modules/*": ["./src/modules/*"],

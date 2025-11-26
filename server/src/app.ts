@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-import routes from '@routes/index.js';
+import routes from '@/routes/index.js';
 import { errorMiddleware } from '@middleware/error.middleware.js';
 
 dotenv.config();

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { userService } from './user.service.js';
-import { createApiResponse } from '@utils/api-response.js';
+import { createApiResponse } from '@/utils/api-response.js';
 
 export const userController = {
     async getAllUsers(req: Request, res: Response) {
