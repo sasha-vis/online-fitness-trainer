@@ -14,9 +14,9 @@ export const BasicLayout: FC<BasicLayoutProps> = ({
 }) => {
     return (
         <div className={styles.layout_container}>
-            <>{headerSlot}</>
-            <>{children}</>
-            <>{footerSlot}</>
+            <header className={styles.header}>{headerSlot}</header>
+            <main className={styles.content}>{children}</main>
+            <footer className={styles.footer}>{footerSlot}</footer>
         </div>
     );
 };

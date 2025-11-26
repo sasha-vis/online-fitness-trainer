@@ -1,9 +1,7 @@
-.header {
+.header_container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
 }
+
 .left,
 .center,
 .right {
@@ -11,10 +9,12 @@
     align-items: center;
     gap: 16px;
 }
+
 .center {
     flex: 1;
     justify-content: center;
 }
+
 .role {
     font-weight: bold;
     margin-right: 8px;

@@ -13,7 +13,7 @@ export const Header = () => {
         navigate('/login');
     };
     return (
-        <header className={styles.header}>
+        <div className={styles.header_container}>
             <nav className={styles.left}>
                 {isAuthenticated && user?.id ? (
                     <>
@@ -46,6 +46,6 @@ export const Header = () => {
                     </>
                 )}
             </div>
-        </header>
+        </div>
     );
 };
