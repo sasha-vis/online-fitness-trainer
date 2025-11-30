@@ -1,0 +1,13 @@
+:root {
+    --size-xs: 4px;
+    --size-sm: 8px;
+    --size-md: 16px;
+    --size-lg: 24px;
+    --size-xl: 32px;
+    --size-2xl: 48px;
+    --size-3xl: 64px;
+
+    --border: #333;
+
+    --box-shadow: rgb(151, 151, 151);
+}

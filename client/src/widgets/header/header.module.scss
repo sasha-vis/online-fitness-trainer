@@ -7,7 +7,7 @@
 .right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--size-md);
 }
 
 .center {
@@ -17,5 +17,5 @@
 
 .role {
     font-weight: bold;
-    margin-right: 8px;
+    margin-right: var(--size-sm);
 }

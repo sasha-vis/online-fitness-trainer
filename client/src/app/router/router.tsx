@@ -3,7 +3,8 @@ import { Home } from '@/pages';
 import { Header, Footer } from '@/widgets';
 import { ProtectedRoute } from './protected-route';
 import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
-import { BasicLayout } from '@/shared/layouts';
+import { AuthLayout, BasicLayout } from '@/shared/layouts';
+import { Auth } from '@/pages/auth';
 
 export const Router = () => {
     return (
@@ -22,12 +23,6 @@ export const Router = () => {
                     <Route
                         path="profile"
                         element={<ProtectedRoute>ProfilePage</ProtectedRoute>}
-                    />
-                    <Route
-                        path="login"
-                        element={
-                            <UnauthorizedOnlyRoute>login-page</UnauthorizedOnlyRoute>
-                        }
                     />
                     <Route
                         path="client"
@@ -60,6 +55,24 @@ export const Router = () => {
                         <Route path="profile" element="trainer-profile-page" />
                         <Route path="nutrition" element="trainer-nutrition-page" />
                     </Route>
+                </Route>
+                <Route element={<AuthLayout />}>
+                    <Route
+                        path="login"
+                        element={
+                            <UnauthorizedOnlyRoute>
+                                <Auth />
+                            </UnauthorizedOnlyRoute>
+                        }
+                    />
+                    <Route
+                        path="signup"
+                        element={
+                            <UnauthorizedOnlyRoute>
+                                <Auth />
+                            </UnauthorizedOnlyRoute>
+                        }
+                    />
                 </Route>
                 <Route path="*" element={'NotFoundPage'} />
             </Routes>
