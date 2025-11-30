@@ -1,5 +1,5 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
-import { Home } from '@/pages';
+import { Home, PersonalAccount } from '@/pages';
 import { Header, Footer } from '@/widgets';
 import { ProtectedRoute } from './protected-route';
 import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
@@ -41,7 +41,7 @@ export const Router = () => {
                         <Route index element={<Home />} />
                         <Route path="nutrition" element="client-nutrition-page" />
                         <Route path="progress" element="client-progress-page" />
-                        <Route path="profile" element="client-profile-page" />
+                        <Route path="profile" element={<PersonalAccount />} />
                         <Route path="trainer" element="client-trainer-page" />
                     </Route>
 
