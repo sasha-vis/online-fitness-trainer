@@ -6,6 +6,8 @@ import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
 import { AuthLayout, BasicLayout } from '@/shared/layouts';
 import { Auth } from '@/pages/auth';
 
+import { ProgressPage } from '@/pages/progress/progress';
+
 export const Router = () => {
     return (
         <>
@@ -25,6 +27,10 @@ export const Router = () => {
                         element={<ProtectedRoute>ProfilePage</ProtectedRoute>}
                     />
                     <Route
+                        path="login"
+                        element={<UnauthorizedOnlyRoute>LoginPage</UnauthorizedOnlyRoute>}
+                    />
+                    <Route
                         path="client"
                         element={
                             <ProtectedRoute requiredRoles={['client']}>
@@ -35,8 +41,8 @@ export const Router = () => {
                     >
                         <Route index element={<Home />} />
                         <Route path="nutrition" element="client-nutrition-page" />
-                        <Route path="progress" element="client-progress-page" />
-                        <Route path="profile" element={<PersonalAccount />} />
+                        <Route path="progress" element={<ProgressPage />} />
+                        <Route path="profile" element="client-profile-page" />
                         <Route path="trainer" element="client-trainer-page" />
                     </Route>
 

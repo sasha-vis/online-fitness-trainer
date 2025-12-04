@@ -7,7 +7,7 @@ export const Home = () => {
             {
                 id: '1',
                 email: 'test@test.com',
-                role: 'trainer',
+                role: 'client',
             },
             '12345'
         );
