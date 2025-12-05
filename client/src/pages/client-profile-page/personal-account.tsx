@@ -4,6 +4,7 @@ import type { UploadProps, UploadFile } from 'antd/es/upload/interface';
 import { UserOutlined, UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/shared/stores';
 interface User {
     id: string;
     firstName: string;
@@ -52,6 +53,7 @@ export const PersonalAccount: React.FC = () => {
     const [form] = Form.useForm<UpdateUserPayload>();
     const [passwordForm] = Form.useForm<ChangePasswordPayload>();
     const navigate = useNavigate();
+    const { logout } = useAuthStore();
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(false);
@@ -166,10 +168,11 @@ export const PersonalAccount: React.FC = () => {
         },
     };
 
-    const logout = async () => {
+    const handleLogout = async () => {
         try {
             await apiUser.logout();
         } finally {
+            logout();
             navigate('/login');
         }
     };
@@ -317,7 +320,7 @@ export const PersonalAccount: React.FC = () => {
                     </div>
 
                     <div style={{ marginTop: 12 }}>
-                        <Button danger block onClick={logout}>
+                        <Button danger block onClick={handleLogout}>
                             Выйти
                         </Button>
                     </div>
