@@ -1,21 +1,16 @@
 import { useAuthStore } from '@/shared/stores';
 
 export const Home = () => {
-    const { login } = useAuthStore();
-    const setFakeUser = () => {
-        login(
-            {
-                id: '1',
-                email: 'test@test.com',
-                role: 'trainer',
-            },
-            '12345'
-        );
-    };
+    const { user } = useAuthStore();
+
+    if (user) {
+        return <div>Добро пожаловать, {user.email}!</div>;
+    }
+
     return (
         <div>
-            home
-            <button onClick={setFakeUser}>setFakeUser</button>
+            Добро пожаловать в MyFit! Что бы начать пользоваться приложением, пожалуйста
+            войдите в ваш аккаунт.
         </div>
     );
 };
