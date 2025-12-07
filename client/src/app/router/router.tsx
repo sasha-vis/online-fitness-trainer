@@ -5,6 +5,8 @@ import { ProtectedRoute } from './protected-route';
 import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
 import { AuthLayout, BasicLayout } from '@/shared/layouts';
 
+import { ProgressPage } from '@/pages/progress/progress';
+
 export const Router = () => {
     return (
         <>
@@ -35,7 +37,7 @@ export const Router = () => {
                             path="workouts"
                             element="Тут будет план тренировок клиента, включая детальную страницу определенной тренировки с аккордеоном для упражнений, в упражнении мы видим видео и описание"
                         />
-                        <Route path="progress" element="Тут будет прогресс клиента" />
+                        <Route path="progress" element={<ProgressPage />} />
                         <Route path="profile" element={<PersonalAccount />} />
                         <Route
                             path="trainer"
