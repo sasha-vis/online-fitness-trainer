@@ -1,18 +1,13 @@
 .header_container {
     display: flex;
+    justify-content: space-between;
 }
 
 .left,
-.center,
 .right {
     display: flex;
     align-items: center;
     gap: var(--size-md);
-}
-
-.center {
-    flex: 1;
-    justify-content: center;
 }
 
 .role {
