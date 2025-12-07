@@ -1,11 +1,9 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
-import { Home, PersonalAccount, Auth } from '@/pages';
+import { Home, PersonalAccount, Auth, ProgressPage } from '@/pages';
 import { Header, Footer } from '@/widgets';
 import { ProtectedRoute } from './protected-route';
 import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
 import { AuthLayout, BasicLayout } from '@/shared/layouts';
-
-import { ProgressPage } from '@/pages/progress/progress';
 
 export const Router = () => {
     return (
