@@ -5,8 +5,6 @@ import { ProtectedRoute } from './protected-route';
 import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
 import { AuthLayout, BasicLayout } from '@/shared/layouts';
 
-import { ProgressPage } from '@/pages/progress/progress';
-
 export const Router = () => {
     return (
         <>
