@@ -1,21 +1,16 @@
 .header_container {
     display: flex;
+    justify-content: space-between;
 }
 
 .left,
-.center,
 .right {
     display: flex;
     align-items: center;
-    gap: 16px;
-}
-
-.center {
-    flex: 1;
-    justify-content: center;
+    gap: var(--size-md);
 }
 
 .role {
     font-weight: bold;
-    margin-right: 8px;
+    margin-right: var(--size-sm);
 }

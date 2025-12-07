@@ -1,4 +1,6 @@
+import '@ant-design/v5-patch-for-react-19';
 import '@/app/styles/index.css';
+import '@/app/styles/variables.css';
 import '@/app/styles/normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
