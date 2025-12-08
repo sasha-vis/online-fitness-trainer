@@ -5,6 +5,9 @@ import { UserOutlined, UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/shared/stores';
+import { signOut as firebaseSignOut } from 'firebase/auth';
+import { auth } from '@/firebase';
+
 interface User {
     id: string;
     firstName: string;
@@ -170,10 +173,11 @@ export const PersonalAccount: React.FC = () => {
 
     const handleLogout = async () => {
         try {
-            await apiUser.logout();
-        } finally {
+            await firebaseSignOut(auth);
             logout();
             navigate('/login');
+        } catch (error) {
+            alert(error);
         }
     };
 

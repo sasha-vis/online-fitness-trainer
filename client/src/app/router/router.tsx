@@ -16,25 +16,7 @@ export const Router = () => {
                 }
             >
                 <Route index element={<Home />} />
-                <Route path="me">
-                    <Route
-                        path="nutrition"
-                        element={
-                            <Nutrition/>
-                        }
-                    />
-                </Route>
-                <Route path="progress" element="ProgressPage" />
-                <Route
-                    path="profile"
-                    element={<ProtectedRoute>ProfilePage</ProtectedRoute>}
-                />
-                <Route
-                    path="login"
-                    element={
-                        <UnauthorizedOnlyRoute>login-page</UnauthorizedOnlyRoute>
-                    }
-                />
+
                 <Route
                     path="client"
                     element={
@@ -44,7 +26,7 @@ export const Router = () => {
                     }
                 >
                     <Route index element={<Home />} />
-                    <Route path="nutrition" element="Тут будет план питания клиента" />
+                    <Route path="nutrition" element={<Nutrition />} />
                     <Route
                         path="workouts"
                         element="Тут будет план тренировок клиента, включая детальную страницу определенной тренировки с аккордеоном для упражнений, в упражнении мы видим видео и описание"
@@ -81,24 +63,6 @@ export const Router = () => {
                         element="Тут будет список всех клиентов, с возможностью посмотреть детально инфо о них, включая их план тренировок, питания, прогресс и чат с ними"
                     />
                 </Route>
-            </Route>
-            <Route element={<AuthLayout />}>
-                <Route
-                    path="login"
-                    element={
-                        <UnauthorizedOnlyRoute>
-                            <Auth />
-                        </UnauthorizedOnlyRoute>
-                    }
-                />
-                <Route
-                    path="signup"
-                    element={
-                        <UnauthorizedOnlyRoute>
-                            <Auth />
-                        </UnauthorizedOnlyRoute>
-                    }
-                />
             </Route>
 
             <Route
