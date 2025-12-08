@@ -225,9 +225,6 @@ export const formFields: SignupFormFieldConfig[] = [
         name: SignupFieldsNames.photos,
         label: 'Прикрепите фотографии в полный рост: спереди, сбооку, со спины',
         placeholder: 'Загрузить фото',
-        rules: {
-            required: 'Фотографии обязательны',
-        },
         type: 'file',
     },
     {

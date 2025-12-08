@@ -5,7 +5,9 @@ import styles from '../index.module.scss';
 import { LoginFieldsNames } from '../scheme';
 import { LoginFormValues } from '../types';
 import { useAuthStore } from '@/shared/stores/user/user';
-import { findUser, TEST_USERS } from '@/shared/data/test-users';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 export const LoginForm = () => {
     const { login } = useAuthStore();
@@ -17,19 +19,39 @@ export const LoginForm = () => {
         control,
     } = useForm<LoginFormValues>();
 
-    const onSubmit = (data: LoginFormValues) => {
-        const user = findUser(data.email, data.password);
+    const onSubmit = async (data: LoginFormValues) => {
+        const { email, password } = data;
 
-        if (user) {
-            login(user, 'mock-token');
-            navigate(user.role === 'trainer' ? '/trainer' : '/client');
-        } else {
-            const availableUsers = TEST_USERS.map(
-                (u) => `${u.email} / ${u.password}`
-            ).join('\n');
-            alert(
-                `Неверный email или пароль\n\nДоступные тестовые пользователи:\n${availableUsers}`
+        try {
+            const userCredential = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
             );
+            const firebaseUser = userCredential.user;
+
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+            if (!userDoc.exists()) {
+                throw new Error('Пользователь не найден в базе данных');
+            }
+
+            const userData = userDoc.data();
+            const role = userData.role || 'client';
+
+            login(
+                {
+                    id: firebaseUser.uid,
+                    email: firebaseUser.email!,
+                    name: userData.name || '',
+                    surname: userData.surname || '',
+                    role: role,
+                },
+                firebaseUser.refreshToken
+            );
+
+            navigate(role === 'trainer' ? '/trainer' : '/client');
+        } catch (error) {
+            alert(error);
         }
     };
 

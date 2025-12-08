@@ -21,7 +21,7 @@ export interface SignupFormValues {
     [SignupFieldsNames.medical]: string;
     [SignupFieldsNames.experience]: string;
     [SignupFieldsNames.diet]: string;
-    [SignupFieldsNames.photos]: File[];
+    [SignupFieldsNames.photos]?: File[];
     [SignupFieldsNames.password]: string;
     [SignupFieldsNames.repeatPassword]: string;
 }
