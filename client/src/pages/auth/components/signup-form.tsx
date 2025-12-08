@@ -8,9 +8,11 @@ import { UploadOutlined } from '@ant-design/icons';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import { useAuthStore } from '@/shared/stores';
 
 export const SignupForm = () => {
     const navigate = useNavigate();
+    const { login } = useAuthStore();
 
     const {
         handleSubmit,
@@ -95,6 +97,17 @@ export const SignupForm = () => {
                 diet,
                 createdAt: new Date(),
             });
+
+            login(
+                {
+                    id: userId,
+                    email: user.email!,
+                    name: name || '',
+                    surname: surname || '',
+                    role: 'client',
+                },
+                user.refreshToken
+            );
 
             navigate('/client');
         } catch (error) {
