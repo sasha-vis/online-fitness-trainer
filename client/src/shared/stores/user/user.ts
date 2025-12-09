@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type UserRole = 'trainer' | 'client';
+export type UserRole = 'trainer' | 'client' | 'admin';
 
 export interface User {
     id: string;
     email: string;
+    name: string;
+    surname: string;
     role: UserRole;
 }
 

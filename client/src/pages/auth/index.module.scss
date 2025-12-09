@@ -1,0 +1,36 @@
+.formWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: var(--size-md);
+    width: 300px;
+    border-radius: var(--size-sm);
+    box-shadow: 0 1px 2px 1px var(--box-shadow);
+}
+
+.formWrapperSignup {
+    margin: var(--size-3xl) 0;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-sm);
+    width: 100%;
+}
+
+.formItem {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-xs);
+    margin: 0 var(--size-md);
+}
+
+.formLink {
+    text-align: center;
+}
+
+.formWrapper .formUpload :global(.ant-upload),
+.formWrapper .formUpload :global(.ant-btn) {
+    width: 100%;
+}

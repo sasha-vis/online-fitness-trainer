@@ -8,22 +8,22 @@
 
 .content {
     flex: 1;
-    padding: 16px;
+    padding: var(--size-md);
 }
 
 .footer,
 .header {
     height: 50px;
-    padding: 16px;
+    padding: var(--size-md);
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 .header {
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--border);
 }
 
 .footer {
-    border-top: 1px solid #333;
+    border-top: 1px solid var(--border);
 }

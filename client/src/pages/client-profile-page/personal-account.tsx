@@ -4,10 +4,16 @@ import type { UploadProps, UploadFile } from 'antd/es/upload/interface';
 import { UserOutlined, UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/shared/stores';
+import { signOut as firebaseSignOut } from 'firebase/auth';
+import { auth } from '@/firebase';
+import { getUserByUid } from '@pages/client-profile-page/api-user-firebase.ts';
+import { onAuthStateChanged } from 'firebase/auth';
+
 interface User {
     id: string;
-    firstName: string;
-    lastName: string;
+    name: string;
+    surname: string;
     height?: number | null;
     email: string;
     phone?: string;
@@ -15,8 +21,8 @@ interface User {
 }
 
 interface UpdateUserPayload {
-    firstName: string;
-    lastName: string;
+    name: string;
+    surname: string;
     height?: number | null;
     email: string;
     phone?: string;
@@ -52,6 +58,7 @@ export const PersonalAccount: React.FC = () => {
     const [form] = Form.useForm<UpdateUserPayload>();
     const [passwordForm] = Form.useForm<ChangePasswordPayload>();
     const navigate = useNavigate();
+    const { logout } = useAuthStore();
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(false);
@@ -60,57 +67,47 @@ export const PersonalAccount: React.FC = () => {
 
     useEffect(() => {
         let mounted = true;
-        apiUser
-            .getMe()
-            .then((res) => {
-                if (!mounted) return;
-                setUser(res.data);
-                setAvatarUrl(res.data.avatar ?? undefined);
+
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            if (!firebaseUser) {
+                message.error('Пользователь не авторизован');
+                navigate('/login');
+                return;
+            }
+
+            try {
+                const userData = await getUserByUid(firebaseUser.uid);
+
+                if (!mounted || !userData) return;
+
+                setUser(userData);
+                setAvatarUrl(userData.avatar ?? undefined);
 
                 form.setFieldsValue({
-                    firstName: res.data.firstName,
-                    lastName: res.data.lastName,
-                    height: res.data.height ?? undefined,
-                    email: res.data.email,
-                    phone: res.data.phone ?? undefined,
-                } as UpdateUserPayload);
-            })
-            .catch(() => {
-                const fakeUser: User = {
-                    id: '1',
-                    firstName: 'Иван',
-                    lastName: 'Иванов',
-                    height: 180,
-                    email: 'ivan@mail.ru',
-                    phone: '+79998887766',
-                    avatar: null,
-                };
-
-                if (!mounted) return;
-                setUser(fakeUser);
-                setAvatarUrl(fakeUser.avatar ?? undefined);
-
-                form.setFieldsValue({
-                    firstName: fakeUser.firstName,
-                    lastName: fakeUser.lastName,
-                    height: fakeUser.height ?? undefined,
-                    email: fakeUser.email,
-                    phone: fakeUser.phone ?? undefined,
-                } as UpdateUserPayload);
-            });
+                    name: userData.name,
+                    surname: userData.surname,
+                    height: userData.height ?? undefined,
+                    email: userData.email,
+                    phone: userData.phone ?? undefined,
+                });
+            } catch {
+                message.error('Ошибка загрузки профиля');
+            }
+        });
 
         return () => {
             mounted = false;
+            unsubscribe();
         };
-    }, [form]);
+    }, [form, navigate]);
 
     const onEdit = () => setEditMode(true);
     const onCancel = () => {
         setEditMode(false);
         if (user) {
             form.setFieldsValue({
-                firstName: user.firstName,
-                lastName: user.lastName,
+                name: user.name,
+                surname: user.surname,
                 height: user.height ?? undefined,
                 email: user.email,
                 phone: user.phone ?? undefined,
@@ -166,11 +163,13 @@ export const PersonalAccount: React.FC = () => {
         },
     };
 
-    const logout = async () => {
+    const handleLogout = async () => {
         try {
-            await apiUser.logout();
-        } finally {
+            await firebaseSignOut(auth);
+            logout();
             navigate('/login');
+        } catch (error) {
+            alert(error);
         }
     };
 
@@ -196,15 +195,15 @@ export const PersonalAccount: React.FC = () => {
                         layout="vertical"
                         disabled={!editMode}
                         initialValues={{
-                            firstName: user.firstName,
-                            lastName: user.lastName,
+                            name: user.name,
+                            surname: user.surname,
                             height: user.height ?? undefined,
                             email: user.email,
                             phone: user.phone ?? undefined,
                         }}
                     >
                         <Form.Item
-                            name="firstName"
+                            name="name"
                             label="Имя"
                             rules={[{ required: true, message: 'Введите имя' }]}
                         >
@@ -212,7 +211,7 @@ export const PersonalAccount: React.FC = () => {
                         </Form.Item>
 
                         <Form.Item
-                            name="lastName"
+                            name="surname"
                             label="Фамилия"
                             rules={[{ required: true, message: 'Введите фамилию' }]}
                         >
@@ -317,7 +316,7 @@ export const PersonalAccount: React.FC = () => {
                     </div>
 
                     <div style={{ marginTop: 12 }}>
-                        <Button danger block onClick={logout}>
+                        <Button danger block onClick={handleLogout}>
                             Выйти
                         </Button>
                     </div>
