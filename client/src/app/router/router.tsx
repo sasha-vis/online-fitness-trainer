@@ -1,5 +1,10 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
 import { Home, PersonalAccount, Auth, ProgressPage, Nutrition } from '@/pages';
+// import { ClientWorkoutPage } from '@/pages/client-workout-page/client-workout-page';
+import { TrainerWorkoutPage } from '@/pages/trainer-workout-page/trainer-workout-page';
+import { TrainerWorkoutsTemplate } from '@/pages/trainer-workouts-template/trainer-workouts-template';
+import { TrainerWorkoutsPlan } from '@/pages/trainer-workouts-plan/trainer-workouts-plan';
+
 import { Header, Footer } from '@/widgets';
 import { ProtectedRoute } from './protected-route';
 import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
@@ -29,6 +34,7 @@ export const Router = () => {
                     <Route path="nutrition" element={<Nutrition />} />
                     <Route
                         path="workouts"
+                        // element={<ClientWorkoutPage />}
                         element="Тут будет план тренировок клиента, включая детальную страницу определенной тренировки с аккордеоном для упражнений, в упражнении мы видим видео и описание"
                     />
                     <Route path="progress" element={<ProgressPage />} />
@@ -54,8 +60,16 @@ export const Router = () => {
                     />
                     <Route
                         path="workouts"
-                        element="Тут будет список планов тренировок, включая детальную страницу определенной тренировки с аккордеоном для упражнений, в упражнении мы видим видео и описание. Также можно создавать редактировать и удалять как планы тренировок, так и тренировки и упражнения"
+                        element={<TrainerWorkoutPage />}
+                        // element="Тут будет список планов тренировок, включая детальную страницу определенной тренировки с аккордеоном для упражнений, в упражнении мы видим видео и описание. Также можно создавать редактировать и удалять как планы тренировок, так и тренировки и упражнения"
                     />
+                    <Route
+                        path="workouts/templates"
+                        element={<TrainerWorkoutsTemplate />}
+                    />
+                    <Route path="workouts/plans" element={<TrainerWorkoutsPlan />} />
+
+                    {/* </Route> */}
                     <Route path="progress" element="Тут будет прогресс всех клиентов" />
                     <Route path="profile" element={<PersonalAccount />} />
                     <Route
