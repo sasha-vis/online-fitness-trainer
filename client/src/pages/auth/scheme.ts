@@ -28,6 +28,7 @@ export enum SignupFieldsNames {
     photos = 'photos',
     password = 'password',
     repeatPassword = 'repeatPassword',
+    weight = 'weight',
 }
 
 export const formFields: SignupFormFieldConfig[] = [
@@ -97,6 +98,19 @@ export const formFields: SignupFormFieldConfig[] = [
         placeholder: '180',
         rules: {
             required: 'Укажите рост',
+            pattern: {
+                value: /^\d+$/,
+                message: 'Некорректное значение',
+            },
+        },
+        type: 'input',
+    },
+    {
+        name: SignupFieldsNames.weight,
+        label: 'Вес',
+        placeholder: '67',
+        rules: {
+            required: 'Укажите вес',
             pattern: {
                 value: /^\d+$/,
                 message: 'Некорректное значение',
@@ -251,6 +265,15 @@ export const formFields: SignupFormFieldConfig[] = [
         name: SignupFieldsNames.repeatPassword,
         label: 'Повторите пароль',
         placeholder: 'Повторите пароль',
+        rules: {
+            required: 'Пароль обязателен',
+            validate: (value, formValues) => {
+                return (
+                    value === formValues[SignupFieldsNames.password] ||
+                    'Пароли не совпадают'
+                );
+            },
+        },
         type: 'input',
     },
 ];
