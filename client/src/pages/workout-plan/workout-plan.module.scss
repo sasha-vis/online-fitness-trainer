@@ -1,0 +1,106 @@
+.pageTitle {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.loaderContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.loading {
+    font-size: 18px;
+    color: #666;
+    text-align: center;
+}
+
+.noPlanMessage {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.noPlanTitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.noPlanText {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.workoutPlan {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.planHeader {
+    padding: 25px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.planTitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.planInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+}
+
+.planGoal,
+.planWorkouts {
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+.infoLabel {
+    color: #666;
+    margin-right: 8px;
+}
+
+.infoValue {
+    color: #333;
+    font-weight: 500;
+}
+
+.workoutCount {
+    color: #2563eb;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.trainingsList {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}

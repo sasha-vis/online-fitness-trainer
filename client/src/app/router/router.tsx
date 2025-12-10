@@ -1,5 +1,13 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
-import { Home, PersonalAccount, Auth, ProgressPage, Nutrition } from '@/pages';
+import {
+    Home,
+    PersonalAccount,
+    Auth,
+    ProgressPage,
+    Nutrition,
+    WorkoutPlan,
+    Workout,
+} from '@/pages';
 import { Header, Footer } from '@/widgets';
 import { ProtectedRoute } from './protected-route';
 import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
@@ -27,10 +35,10 @@ export const Router = () => {
                 >
                     <Route index element={<Home />} />
                     <Route path="nutrition" element={<Nutrition />} />
-                    <Route
-                        path="workouts"
-                        element="Тут будет план тренировок клиента, включая детальную страницу определенной тренировки с аккордеоном для упражнений, в упражнении мы видим видео и описание"
-                    />
+                    <Route path="workouts" element={<Outlet />}>
+                        <Route index element={<WorkoutPlan />} />
+                        <Route path=":id" element={<Workout />} />
+                    </Route>
                     <Route path="progress" element={<ProgressPage />} />
                     <Route path="profile" element={<PersonalAccount />} />
                     <Route
