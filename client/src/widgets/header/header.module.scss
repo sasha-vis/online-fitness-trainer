@@ -1,6 +1,7 @@
 .header_container {
     display: flex;
     justify-content: space-between;
+    height: 100%;
 }
 
 .left,
@@ -10,7 +11,17 @@
     gap: var(--size-md);
 }
 
-.role {
-    font-weight: bold;
-    margin-right: var(--size-sm);
+.header_container a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.125rem;
+    font-weight: 500;
+    padding: var(--size-sm) var(--size-md);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.header_container a.active {
+    text-decoration: underline;
+    color: #193470;
 }

@@ -13,6 +13,7 @@ export interface SignupFormValues {
     [SignupFieldsNames.age]: number;
     [SignupFieldsNames.height]: number;
     [SignupFieldsNames.waist]: number;
+    [SignupFieldsNames.weight]: number;
     [SignupFieldsNames.chest]: number;
     [SignupFieldsNames.hips]: number;
     [SignupFieldsNames.arm]: number;
@@ -21,7 +22,7 @@ export interface SignupFormValues {
     [SignupFieldsNames.medical]: string;
     [SignupFieldsNames.experience]: string;
     [SignupFieldsNames.diet]: string;
-    [SignupFieldsNames.photos]?: File[];
+    [SignupFieldsNames.photos]: File[];
     [SignupFieldsNames.password]: string;
     [SignupFieldsNames.repeatPassword]: string;
 }

@@ -11,17 +11,59 @@ export const Header = () => {
             <nav className={styles.left}>
                 {!isAuthenticated && (
                     <>
-                        <NavLink to="/">Главная</NavLink>
-                        <NavLink to="/login">Войти</NavLink>
+                        <NavLink
+                            to="/"
+                            className={({ isActive }) =>
+                                isActive ? `${styles.link} ${styles.active}` : styles.link
+                            }
+                        >
+                            Главная
+                        </NavLink>
+                        <NavLink
+                            to="/login"
+                            className={({ isActive }) =>
+                                isActive ? `${styles.link} ${styles.active}` : styles.link
+                            }
+                        >
+                            Войти
+                        </NavLink>
                     </>
                 )}
 
                 {isAuthenticated && (
                     <>
-                        <NavLink to={'/'}>Главная</NavLink>
-                        <NavLink to={`${rolePrefix}/nutrition`}>Питание</NavLink>
-                        <NavLink to={`${rolePrefix}/workouts`}>Тренировки</NavLink>
-                        <NavLink to={`${rolePrefix}/progress`}>Прогресс</NavLink>
+                        <NavLink
+                            to={'/'}
+                            className={({ isActive }) =>
+                                isActive ? `${styles.link} ${styles.active}` : styles.link
+                            }
+                        >
+                            Главная
+                        </NavLink>
+                        <NavLink
+                            to={`${rolePrefix}/nutrition`}
+                            className={({ isActive }) =>
+                                isActive ? `${styles.link} ${styles.active}` : styles.link
+                            }
+                        >
+                            Питание
+                        </NavLink>
+                        <NavLink
+                            to={`${rolePrefix}/workouts`}
+                            className={({ isActive }) =>
+                                isActive ? `${styles.link} ${styles.active}` : styles.link
+                            }
+                        >
+                            Тренировки
+                        </NavLink>
+                        <NavLink
+                            to={`${rolePrefix}/progress`}
+                            className={({ isActive }) =>
+                                isActive ? `${styles.link} ${styles.active}` : styles.link
+                            }
+                        >
+                            Прогресс
+                        </NavLink>
                     </>
                 )}
             </nav>
@@ -30,13 +72,38 @@ export const Header = () => {
                 {isAuthenticated && (
                     <>
                         {user?.role === 'client' && (
-                            <NavLink to={`${rolePrefix}/trainer`}>Тренер</NavLink>
+                            <NavLink
+                                to={`${rolePrefix}/trainer`}
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? `${styles.link} ${styles.active}`
+                                        : styles.link
+                                }
+                            >
+                                Тренер
+                            </NavLink>
                         )}
                         {user?.role === 'trainer' && (
-                            <NavLink to={`${rolePrefix}/clients`}>Клиенты</NavLink>
+                            <NavLink
+                                to={`${rolePrefix}/clients`}
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? `${styles.link} ${styles.active}`
+                                        : styles.link
+                                }
+                            >
+                                Клиенты
+                            </NavLink>
                         )}
 
-                        <NavLink to={`${rolePrefix}/profile`}>Профиль</NavLink>
+                        <NavLink
+                            to={`${rolePrefix}/profile`}
+                            className={({ isActive }) =>
+                                isActive ? `${styles.link} ${styles.active}` : styles.link
+                            }
+                        >
+                            Профиль
+                        </NavLink>
                     </>
                 )}
             </div>
