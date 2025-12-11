@@ -1,7 +1,7 @@
 import React from 'react';
-import styles from './workout-plan.module.scss';
+import styles from './client-workouts.module.scss';
 import { WorkoutCard } from './components/workout-card';
-import { workoutPlan } from '../workout/workout-plan-mock';
+import { workoutPlan } from '../workout-detail/workout-plan-mock';
 
 interface LoaderProps {
     children: React.ReactNode;
@@ -15,7 +15,7 @@ const Loader = ({ children }: LoaderProps) => {
     );
 };
 
-export const WorkoutPlan = () => {
+export const ClientWorkouts = () => {
     const isLoading = false;
 
     if (isLoading) {

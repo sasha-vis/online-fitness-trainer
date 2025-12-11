@@ -1,12 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
-import styles from './workout.module.scss';
-import { workoutPlan } from '../workout/workout-plan-mock';
+import styles from './workout-detail.module.scss';
+import { workoutPlan } from './workout-plan-mock';
 import { Breadcrumb } from 'antd';
 
-export const Workout = () => {
-    const { id } = useParams();
+export const WorkoutDetail = () => {
+    const { workoutId } = useParams();
 
-    const workout = workoutPlan.workouts.find((w) => w.id === id);
+    const workout = workoutPlan.workouts.find((w) => w.id === workoutId);
 
     if (!workout) return <div className={styles.notFound}>Такой тренировки нет</div>;
 
@@ -24,7 +24,7 @@ export const Workout = () => {
                     },
                 ]}
             />
-            <h1 className={styles.workoutTitle}>Тренировка {id}</h1>
+            <h1 className={styles.workoutTitle}>Тренировка {workoutId}</h1>
 
             <div className={styles.workoutDetails}>
                 <section className={styles.section}>
