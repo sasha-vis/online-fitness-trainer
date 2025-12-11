@@ -9,7 +9,7 @@ import { WorkoutFormData, WorkoutTemplate } from '@shared/stores/workout/workout
 
 import { Button, Modal } from 'antd';
 
-export const TrainerWorkoutsTemplate = () => {
+export const ExcerciseTemplates = () => {
     const { templates, addTemplate, updateTemplate, deleteTemplate } =
         useTemplatesStore();
     const [modalVisible, setModalVisible] = useState(false);
