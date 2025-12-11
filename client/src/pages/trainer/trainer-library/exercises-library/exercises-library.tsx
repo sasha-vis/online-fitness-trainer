@@ -1,41 +1,38 @@
 import { useState } from 'react';
 import { WorkoutList } from '@/widgets/workouts/workouts-widget';
-import { workoutPlans } from '@shared/constants/workout-plans';
 import { WorkoutModal } from '@/widgets/workout-modal/workout-modal';
+import { workoutTemplates } from '@shared/constants/workout-templates';
 
-import { usePlansStore } from '@shared/stores/workout/workout';
+import { useTemplatesStore } from '@shared/stores/workout/workout';
 
-import {
-    WorkoutPlan,
-    WorkoutFormData,
-    WorkoutListItem,
-} from '@shared/stores/workout/workout-types';
+import { WorkoutFormData, WorkoutTemplate } from '@shared/stores/workout/workout-types';
 
 import { Button, Modal } from 'antd';
 
-export const TrainerWorkoutsPlan = () => {
-    const { plans, addPlan, updatePlan, deletePlan } = usePlansStore();
+export const ExercisesLibrary = () => {
+    const { templates, addTemplate, updateTemplate, deleteTemplate } =
+        useTemplatesStore();
     const [modalVisible, setModalVisible] = useState(false);
-    const [currentItem, setCurrentItem] = useState<WorkoutPlan | null>(null);
+    const [currentItem, setCurrentItem] = useState<WorkoutTemplate | null>(null);
 
     const handleSubmit = (values: WorkoutFormData) => {
         if (currentItem && currentItem.id) {
-            updatePlan(currentItem.id, values);
+            updateTemplate(currentItem.id, values);
         } else {
-            addPlan(values);
+            addTemplate(values);
         }
         setCurrentItem(null);
     };
 
-    const handleEdit = (item: WorkoutListItem) => {
+    const handleEdit = (item: WorkoutTemplate) => {
         setCurrentItem(item);
         setModalVisible(true);
     };
 
     const handleDelete = (id: string) => {
         Modal.confirm({
-            title: 'Удалить план?',
-            onOk: () => deletePlan(id),
+            title: 'Удалить шаблон?',
+            onOk: () => deleteTemplate(id),
         });
     };
 
@@ -49,11 +46,11 @@ export const TrainerWorkoutsPlan = () => {
                 }}
                 style={{ margin: '20px' }}
             >
-                Создать новый план
+                Создать новый шаблон
             </Button>
             <WorkoutList
-                list={plans}
-                title="Планы тренировок"
+                list={templates}
+                title="Шаблоны планов тренировок"
                 onEdit={handleEdit}
                 onDelete={handleDelete}
             />
@@ -62,7 +59,7 @@ export const TrainerWorkoutsPlan = () => {
                 onClose={() => setModalVisible(false)}
                 initialData={currentItem as WorkoutFormData}
                 onSubmit={handleSubmit}
-                predefinedOptions={workoutPlans}
+                predefinedOptions={workoutTemplates}
             />
         </>
     );

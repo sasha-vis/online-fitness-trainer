@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from './client-nutrition.module.scss';
+import styles from './nutrition.module.scss';
 import { Flex, Radio, RadioChangeEvent, Typography } from 'antd';
 
 interface NutritionPlan {
@@ -32,7 +32,7 @@ interface NutritionPlan {
     }[];
 }
 
-export const ClientNutrition = () => {
+export const Nutrition = () => {
     const [filter, setFilter] = useState<'day' | 'week' | 'month'>('day');
     const data: NutritionPlan[] = mockData;
 
