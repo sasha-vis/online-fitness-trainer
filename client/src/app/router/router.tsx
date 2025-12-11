@@ -6,10 +6,14 @@ import {
     Home,
     PersonalAccount,
     Auth,
-    ProgressPage,
-    Nutrition,
-    WorkoutPlan,
-    Workout,
+    ClientNutrition,
+    ClientWorkouts,
+    ClientProgress,
+    ClientProfile,
+    TrainerProfile,
+    Chat,
+    WorkoutDetail,
+    NutritionDetail,
 } from '@/pages';
 import { Header, Footer } from '@/widgets';
 import { ProtectedRoute } from './protected-route';
@@ -37,17 +41,15 @@ export const Router = () => {
                     }
                 >
                     <Route index element={<Home />} />
-                    <Route path="nutrition" element={<Nutrition />} />
-                    <Route path="workouts" element={<Outlet />}>
-                        <Route index element={<WorkoutPlan />} />
-                        <Route path=":id" element={<Workout />} />
+                    <Route path="nutrition" element={<ClientNutrition />} />
+                    <Route path="nutrition/:nutritionId" element={<NutritionDetail />} />
+                    <Route path="workouts" element={<ClientWorkouts />} />
+                    <Route path="workouts/:workoutId" element={<WorkoutDetail />} />
+                    <Route path="progress" element={<ClientProgress />} />
+                    <Route path="profile" element={<ClientProfile />} />
+                    <Route path="trainer" element={<TrainerProfile />}>
+                        <Route path="chat" element={<Chat />} />
                     </Route>
-                    <Route path="progress" element={<ProgressPage />} />
-                    <Route path="profile" element={<PersonalAccount />} />
-                    <Route
-                        path="trainer"
-                        element="Тут будет профиль тренера и чат с тренером клиента"
-                    />
                 </Route>
 
                 <Route

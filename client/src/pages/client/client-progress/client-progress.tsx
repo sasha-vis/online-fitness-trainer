@@ -33,7 +33,7 @@ const { Title, Text } = Typography;
 
 type ModalType = 'month' | 'year' | 'week' | 'range' | null;
 
-export const ProgressPage = () => {
+export const ClientProgress = () => {
     const { reports, filters, setFilters, resetDateFilters, setPage } =
         useProgressStore();
 
