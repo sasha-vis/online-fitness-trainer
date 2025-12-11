@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './client-workouts.module.scss';
+import styles from './workouts.module.scss';
 import { WorkoutCard } from './components/workout-card';
 import { workoutPlan } from '../workout-detail/workout-plan-mock';
 
@@ -15,7 +15,7 @@ const Loader = ({ children }: LoaderProps) => {
     );
 };
 
-export const ClientWorkouts = () => {
+export const Workouts = () => {
     const isLoading = false;
 
     if (isLoading) {

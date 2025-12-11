@@ -7,7 +7,11 @@ interface TrainerNavProps {
 export const TrainerNav = ({ getLinkClass }: TrainerNavProps) => {
     return (
         <>
-            <NavLink to="/trainer" className={({ isActive }) => getLinkClass(isActive)}>
+            <NavLink
+                to="/trainer"
+                className={({ isActive }) => getLinkClass(isActive)}
+                end
+            >
                 Главная
             </NavLink>
             <NavLink

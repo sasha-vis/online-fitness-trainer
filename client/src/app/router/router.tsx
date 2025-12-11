@@ -1,19 +1,28 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
-import { WorkoutTemplates } from '@/pages/trainer/trainer-library/workout-templates/workout-templates';
-import { ExcerciseTemplates } from '@/pages/trainer/trainer-library/excercise-templates/excercise-templates';
-import { TrainerLibrary } from '@/pages/trainer/trainer-library/trainer-library';
 import {
     Home,
     PersonalAccount,
     Auth,
-    ClientNutrition,
-    ClientWorkouts,
-    ClientProgress,
-    ClientProfile,
-    TrainerProfile,
     Chat,
+    Nutrition,
+    Workouts,
     WorkoutDetail,
     NutritionDetail,
+    Progress,
+    TrainerProfile,
+    TrainerLibrary,
+    NutritionTemplates,
+    WorkoutTemplates,
+    MealsLibrary,
+    ExercisesLibrary,
+    TrainerClients,
+    ClientProfile,
+    WorkoutsForm,
+    WorkoutDetailForm,
+    NutritionForm,
+    NutritionDetailForm,
+    ClientProgress,
+    NotFound,
 } from '@/pages';
 import { Header, Footer } from '@/widgets';
 import { ProtectedRoute } from './protected-route';
@@ -41,12 +50,12 @@ export const Router = () => {
                     }
                 >
                     <Route index element={<Home />} />
-                    <Route path="nutrition" element={<ClientNutrition />} />
+                    <Route path="nutrition" element={<Nutrition />} />
                     <Route path="nutrition/:nutritionId" element={<NutritionDetail />} />
-                    <Route path="workouts" element={<ClientWorkouts />} />
+                    <Route path="workouts" element={<Workouts />} />
                     <Route path="workouts/:workoutId" element={<WorkoutDetail />} />
-                    <Route path="progress" element={<ClientProgress />} />
-                    <Route path="profile" element={<ClientProfile />} />
+                    <Route path="progress" element={<Progress />} />
+                    <Route path="profile" element={<PersonalAccount />} />
                     <Route path="trainer" element={<TrainerProfile />}>
                         <Route path="chat" element={<Chat />} />
                     </Route>
@@ -60,38 +69,35 @@ export const Router = () => {
                         </ProtectedRoute>
                     }
                 >
-                    <Route
-                        path="clients"
-                        element="Здесь будет рендериться список клиентов"
-                    />
-                    <Route path="library" element={<TrainerLibrary />} />
-                    <Route
-                        path="library/nutrition-templates"
-                        element="nutrition templates"
-                    />
-                    <Route
-                        path="library/workout-templates"
-                        element={<WorkoutTemplates />}
-                    />
-                    <Route
-                        path="library/excercise-templates"
-                        element={<ExcerciseTemplates />}
-                    />
-                    <Route path="clients/:clientId" element="client profile page" />
-                    <Route index element="clients overview" />
-                    <Route path="workouts" element="тренировки с клиентами" />
-                    <Route
-                        path="workouts/:workoutId"
-                        element="деталька тренировки с клиентом"
-                    />
-                    <Route path="nutrition" element="client nutrition page" />
-                    <Route
-                        path="nutrition/:nutritionId"
-                        element="client nutrition plan"
-                    />
-                    <Route path="progress" element={<ClientProgress />} />
-                    <Route path="chat" element="chat with a client" />
                     <Route index element={<Home />} />
+
+                    <Route path="library" element={<TrainerLibrary />}>
+                        <Route
+                            path="nutrition-templates"
+                            element={<NutritionTemplates />}
+                        />
+                        <Route path="workout-templates" element={<WorkoutTemplates />} />
+                        <Route path="meals" element={<MealsLibrary />} />
+                        <Route path="exercises" element={<ExercisesLibrary />} />
+                    </Route>
+
+                    <Route path="clients" element={<TrainerClients />} />
+                    <Route path="clients/:clientId" element={<ClientProfile />}>
+                        <Route path="workouts" element={<WorkoutsForm />} />
+                        <Route
+                            path="workouts/:workoutId"
+                            element={<WorkoutDetailForm />}
+                        />
+                        <Route path="nutrition" element={<NutritionForm />} />
+                        <Route
+                            path="nutrition/:nutritionId"
+                            element={<NutritionDetailForm />}
+                        />
+
+                        <Route path="progress" element={<ClientProgress />} />
+                        <Route path="chat" element={<Chat />} />
+                    </Route>
+
                     <Route path="profile" element={<PersonalAccount />} />
                 </Route>
             </Route>
@@ -107,7 +113,7 @@ export const Router = () => {
                 <Route path="signup" element={<Auth />} />
             </Route>
 
-            <Route path="*" element={'NotFoundPage'} />
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 };

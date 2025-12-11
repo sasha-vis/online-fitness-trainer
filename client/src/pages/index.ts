@@ -1,14 +1,23 @@
 export { Home } from './home';
 export { Auth } from './auth';
-export { PersonalAccount } from './client-profile-page';
-
-export {
-    ClientNutrition,
-    ClientWorkouts,
-    ClientProgress,
-    ClientProfile,
-    TrainerProfile,
-    Chat,
-    WorkoutDetail,
-    NutritionDetail,
-} from './client';
+export { PersonalAccount } from './personal-account';
+export { Chat } from './chat';
+export { NotFound } from './not-found';
+export { Nutrition } from './client/nutrition/nutrition';
+export { NutritionDetail } from './client/nutrition-detail/nutrition-detail';
+export { Workouts } from './client/workouts/workouts';
+export { WorkoutDetail } from './client/workout-detail/workout-detail';
+export { Progress } from './client/progress/progress';
+export { TrainerProfile } from './client/trainer-profile/trainer-profile';
+export { TrainerLibrary } from './trainer/trainer-library/trainer-library';
+export { NutritionTemplates } from './trainer/trainer-library/nutrition-templates/nutrition-templates';
+export { WorkoutTemplates } from './trainer/trainer-library/workout-templates/workout-templates';
+export { MealsLibrary } from './trainer/trainer-library/meals-library/meals-library';
+export { ExercisesLibrary } from './trainer/trainer-library/exercises-library/exercises-library';
+export { TrainerClients } from './trainer/trainer-clients/trainer-clients';
+export { ClientProfile } from './trainer/client-profile/client-profile';
+export { WorkoutsForm } from './trainer/client-profile/workouts-form/workouts-form';
+export { WorkoutDetailForm } from './trainer/client-profile/workout-detail-form/workout-detail-form';
+export { NutritionForm } from './trainer/client-profile/nutrition-form/nutrition-form';
+export { NutritionDetailForm } from './trainer/client-profile/nutrition-detail-form/nutrition-detail-form';
+export { ClientProgress } from './trainer/client-profile/client-progress/client-progress';

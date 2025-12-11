@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/shared/stores';
 import { signOut as firebaseSignOut } from 'firebase/auth';
 import { auth } from '@/firebase';
-import { getUserByUid } from '@pages/client-profile-page/api-user-firebase.ts';
+import { getUserByUid } from './api-user-firebase.ts';
 import { onAuthStateChanged } from 'firebase/auth';
 
 interface User {
