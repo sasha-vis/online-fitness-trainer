@@ -12,7 +12,7 @@ import {
     message,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { NavLink, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 import { WorkoutFormData } from '@shared/stores/workout/workout-types';
 
@@ -23,11 +23,11 @@ const predefinedExercises = [
     { value: 'Приседания со штангой' },
     { value: 'Вертикальная тяга блока' },
 ];
-interface TrainerWorkoutPageProps {
+interface WorkoutTemplates {
     onSave?: (values: WorkoutFormData) => void;
 }
 
-export const TrainerWorkoutPage: React.FC<TrainerWorkoutPageProps> = ({ onSave }) => {
+export const WorkoutTemplates: React.FC<WorkoutTemplates> = ({ onSave }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
 
@@ -151,12 +151,6 @@ export const TrainerWorkoutPage: React.FC<TrainerWorkoutPageProps> = ({ onSave }
                     </Row>
                 </Form>
             </Modal>
-            <nav>
-                {' '}
-                {/* Поднавигация */}
-                <NavLink to="templates">Шаблоны</NavLink> |{' '}
-                <NavLink to="plans">Планы</NavLink>
-            </nav>
             <Outlet />
         </>
     );

@@ -1,7 +1,7 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
-import { TrainerWorkoutPage } from '@/pages/trainer-workout-page/trainer-workout-page';
-import { TrainerWorkoutsTemplate } from '@/pages/trainer-workouts-template/trainer-workouts-template';
-import { TrainerWorkoutsPlan } from '@/pages/trainer-workouts-plan/trainer-workouts-plan';
+import { WorkoutTemplates } from '@/pages/trainer/trainer-library/workout-templates/workout-templates';
+import { ExcerciseTemplates } from '@/pages/trainer/trainer-library/excercise-templates/excercise-templates';
+import { TrainerLibrary } from '@/pages/trainer/trainer-library/trainer-library';
 import {
     Home,
     PersonalAccount,
@@ -60,29 +60,39 @@ export const Router = () => {
                         </ProtectedRoute>
                     }
                 >
-                    <Route index element={<Home />} />
-                    <Route
-                        path="nutrition"
-                        element="Тут будет список планов питания, все тоже самое как и в тренировках должно быть"
-                    />
-                    <Route
-                        path="workouts"
-                        element={<TrainerWorkoutPage />}
-                        // element="Тут будет список планов тренировок, включая детальную страницу определенной тренировки с аккордеоном для упражнений, в упражнении мы видим видео и описание. Также можно создавать редактировать и удалять как планы тренировок, так и тренировки и упражнения"
-                    />
-                    <Route
-                        path="workouts/templates"
-                        element={<TrainerWorkoutsTemplate />}
-                    />
-                    <Route path="workouts/plans" element={<TrainerWorkoutsPlan />} />
-
-                    {/* </Route> */}
-                    <Route path="progress" element="Тут будет прогресс всех клиентов" />
-                    <Route path="profile" element={<PersonalAccount />} />
                     <Route
                         path="clients"
-                        element="Тут будет список всех клиентов, с возможностью посмотреть детально инфо о них, включая их план тренировок, питания, прогресс и чат с ними"
+                        element="Здесь будет рендериться список клиентов"
                     />
+                    <Route path="library" element={<TrainerLibrary />} />
+                    <Route
+                        path="library/nutrition-templates"
+                        element="nutrition templates"
+                    />
+                    <Route
+                        path="library/workout-templates"
+                        element={<WorkoutTemplates />}
+                    />
+                    <Route
+                        path="library/excercise-templates"
+                        element={<ExcerciseTemplates />}
+                    />
+                    <Route path="clients/:clientId" element="client profile page" />
+                    <Route index element="clients overview" />
+                    <Route path="workouts" element="тренировки с клиентами" />
+                    <Route
+                        path="workouts/:workoutId"
+                        element="деталька тренировки с клиентом"
+                    />
+                    <Route path="nutrition" element="client nutrition page" />
+                    <Route
+                        path="nutrition/:nutritionId"
+                        element="client nutrition plan"
+                    />
+                    <Route path="progress" element={<ClientProgress />} />
+                    <Route path="chat" element="chat with a client" />
+                    <Route index element={<Home />} />
+                    <Route path="profile" element={<PersonalAccount />} />
                 </Route>
             </Route>
 
