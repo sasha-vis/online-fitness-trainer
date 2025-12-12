@@ -1,66 +1,157 @@
-import { useState } from 'react';
-import { WorkoutList } from '@/widgets/workouts/workouts-widget';
-import { WorkoutModal } from '@/widgets/workout-modal/workout-modal';
-import { workoutTemplates } from '@shared/constants/workout-templates';
+import React, { useState } from 'react';
+import {
+    Modal,
+    Form,
+    Input,
+    InputNumber,
+    AutoComplete,
+    Button,
+    Row,
+    Col,
+    Upload,
+    message,
+} from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { Outlet } from 'react-router-dom';
 
-import { useTemplatesStore } from '@shared/stores/workout/workout';
+import { WorkoutFormData } from '@shared/stores/workout/workout-types';
 
-import { WorkoutFormData, WorkoutTemplate } from '@shared/stores/workout/workout-types';
+const { TextArea } = Input;
 
-import { Button, Modal } from 'antd';
+const predefinedExercises = [
+    { value: 'Жим штанги' },
+    { value: 'Приседания со штангой' },
+    { value: 'Вертикальная тяга блока' },
+];
+interface WorkoutTemplates {
+    onSave?: (values: WorkoutFormData) => void;
+}
 
-export const ExercisesLibrary = () => {
-    const { templates, addTemplate, updateTemplate, deleteTemplate } =
-        useTemplatesStore();
-    const [modalVisible, setModalVisible] = useState(false);
-    const [currentItem, setCurrentItem] = useState<WorkoutTemplate | null>(null);
+export const ExercisesLibrary: React.FC<WorkoutTemplates> = ({ onSave }) => {
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [form] = Form.useForm();
 
-    const handleSubmit = (values: WorkoutFormData) => {
-        if (currentItem && currentItem.id) {
-            updateTemplate(currentItem.id, values);
-        } else {
-            addTemplate(values);
-        }
-        setCurrentItem(null);
+    const showModal = () => {
+        setIsModalVisible(true);
     };
 
-    const handleEdit = (item: WorkoutTemplate) => {
-        setCurrentItem(item);
-        setModalVisible(true);
+    const handleOk = () => {
+        form.validateFields()
+            .then((values) => {
+                form.resetFields();
+                setIsModalVisible(false);
+                if (onSave) {
+                    onSave(values);
+                }
+            })
+            .catch((info) => {
+                message.error('Validation failed:', info);
+            });
     };
 
-    const handleDelete = (id: string) => {
-        Modal.confirm({
-            title: 'Удалить шаблон?',
-            onOk: () => deleteTemplate(id),
-        });
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
+    const uploadProps = {
+        name: 'file',
+        action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76', // Замените на реальный эндпоинт, напр. Firebase Storage
+        headers: {
+            authorization: 'authorization-text',
+        },
+        // onChange(info) {
+        //     if (info.file.status !== 'uploading') {
+        //         console.log(info.file, info.fileList);
+        //     }
+        //     if (info.file.status === 'done') {
+        //         // Обработайте успешную загрузку
+        //     } else if (info.file.status === 'error') {
+        //         // Обработайте ошибку
+        //     }
+        // },
     };
 
     return (
         <>
-            <Button
-                type="primary"
-                onClick={() => {
-                    setCurrentItem(null);
-                    setModalVisible(true);
-                }}
-                style={{ margin: '20px' }}
-            >
-                Создать новый шаблон
+            <Button type="primary" onClick={showModal}>
+                Добавить упражнение
             </Button>
-            <WorkoutList
-                list={templates}
-                title="Шаблоны планов тренировок"
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
-            <WorkoutModal
-                visible={modalVisible}
-                onClose={() => setModalVisible(false)}
-                initialData={currentItem as WorkoutFormData}
-                onSubmit={handleSubmit}
-                predefinedOptions={workoutTemplates}
-            />
+            <Modal
+                title="Добавление упражнения"
+                visible={isModalVisible}
+                onOk={handleOk}
+                onCancel={handleCancel}
+            >
+                <Form form={form} layout="vertical">
+                    <Row gutter={16}>
+                        <Col span={16}>
+                            <Form.Item
+                                name="exerciseName"
+                                label="Название упражнения"
+                                rules={[{ required: true }]}
+                            >
+                                <AutoComplete
+                                    options={predefinedExercises}
+                                    placeholder="Выберите или введите название"
+                                    filterOption={(inputValue, option) =>
+                                        option!.value
+                                            .toUpperCase()
+                                            .indexOf(inputValue.toUpperCase()) !== -1
+                                    }
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                name="sets"
+                                label="Подходы"
+                                rules={[{ required: true }]}
+                            >
+                                <InputNumber min={1} placeholder="Количество подходов" />
+                            </Form.Item>
+                            <Form.Item
+                                name="reps"
+                                label="Повторы"
+                                rules={[{ required: true }]}
+                            >
+                                <InputNumber
+                                    min={1}
+                                    placeholder="Количество повторений"
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                name="weight"
+                                label="Вес"
+                                rules={[{ required: true }]}
+                            >
+                                <InputNumber min={0} placeholder="Вес в кг" />
+                            </Form.Item>
+                            <Form.Item
+                                name="rest"
+                                label="Отдых"
+                                rules={[{ required: true }]}
+                            >
+                                <InputNumber min={0} placeholder="Отдых в секундах" />
+                            </Form.Item>
+                            <Form.Item name="comments" label="Комментарии">
+                                <TextArea
+                                    rows={4}
+                                    placeholder="Дополнительные комментарии"
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                            <Upload {...uploadProps} listType="picture-card">
+                                <div>
+                                    <PlusOutlined />
+                                    <div style={{ marginTop: 8 }}>
+                                        Загрузить инструкцию (изображение/видео)
+                                    </div>
+                                </div>
+                            </Upload>
+                        </Col>
+                    </Row>
+                </Form>
+            </Modal>
+            <Outlet />
         </>
     );
 };

@@ -1,14 +1,21 @@
-import { NavLink, Outlet } from 'react-router-dom'; // Используем NavLink вместо Link
+import { Link, NavLink, Outlet } from 'react-router-dom'; // Используем NavLink вместо Link
 import styles from './trainer-library.module.scss';
+import { Breadcrumb } from 'antd';
 
 export const TrainerLibrary = () => {
     return (
         <div className={styles.libraryContainer}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Библиотека</h1>
-                <NavLink to="/trainer" className={styles.backLink}>
-                    ← Назад
-                </NavLink>
+
+                <Breadcrumb
+                    style={{ marginBottom: '16px' }}
+                    items={[
+                        {
+                            title: <Link to="/trainer">{'< Вернуться на главную'}</Link>,
+                        },
+                    ]}
+                />
             </div>
 
             <div className={styles.navSection}>
@@ -20,21 +27,8 @@ export const TrainerLibrary = () => {
                 >
                     <div className={styles.navIcon}>💪</div>
                     <div className={styles.navContent}>
-                        <h3>Шаблоны тренировок</h3>
+                        <h3>Шаблоны планов тренировок</h3>
                         <p>Готовые планы тренировок</p>
-                    </div>
-                </NavLink>
-
-                <NavLink
-                    to="/trainer/library/nutrition-templates"
-                    className={({ isActive }) =>
-                        isActive ? `${styles.navCard} ${styles.active}` : styles.navCard
-                    }
-                >
-                    <div className={styles.navIcon}>🥗</div>
-                    <div className={styles.navContent}>
-                        <h3>Шаблоны питания</h3>
-                        <p>Планы рационов</p>
                     </div>
                 </NavLink>
 
@@ -52,6 +46,19 @@ export const TrainerLibrary = () => {
                 </NavLink>
 
                 <NavLink
+                    to="/trainer/library/nutrition-templates"
+                    className={({ isActive }) =>
+                        isActive ? `${styles.navCard} ${styles.active}` : styles.navCard
+                    }
+                >
+                    <div className={styles.navIcon}>🥗</div>
+                    <div className={styles.navContent}>
+                        <h3>Шаблоны планов питания</h3>
+                        <p>Готовые планы питания</p>
+                    </div>
+                </NavLink>
+
+                <NavLink
                     to="/trainer/library/meals"
                     className={({ isActive }) =>
                         isActive ? `${styles.navCard} ${styles.active}` : styles.navCard
@@ -60,7 +67,7 @@ export const TrainerLibrary = () => {
                     <div className={styles.navIcon}>🍽️</div>
                     <div className={styles.navContent}>
                         <h3>Блюда</h3>
-                        <p>База блюд с КБЖУ</p>
+                        <p>Библиотека блюд</p>
                     </div>
                 </NavLink>
             </div>
