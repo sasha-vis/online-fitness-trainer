@@ -6,19 +6,15 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/shared/stores';
 import { signOut as firebaseSignOut } from 'firebase/auth';
-import { auth } from '@/firebase';
-import { getUserByUid } from './api-user-firebase.ts';
+import {getUserByUid, getUserInfo, updateUserByUid} from './api-user-firebase.ts';
 import { onAuthStateChanged } from 'firebase/auth';
-
-interface User {
-    id: string;
-    name: string;
-    surname: string;
-    height?: number | null;
-    email: string;
-    phone?: string;
-    avatar?: string | null;
-}
+import {IUser, IUserInfo} from "@pages/personal-account/types.ts";
+import {
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    updatePassword,
+} from 'firebase/auth';
+import { auth } from '@/firebase';
 
 interface UpdateUserPayload {
     name: string;
@@ -43,15 +39,11 @@ const api = axios.create({
 });
 
 const apiUser = {
-    getMe: () => api.get<User>('/user/me'),
-    update: (payload: UpdateUserPayload) => api.put<User>('/user/update', payload),
-    changePassword: (payload: ChangePasswordPayload) =>
-        api.put('/user/change-password', payload),
+    update: (payload: UpdateUserPayload) => api.put<IUser>('/user/update', payload),
     uploadAvatar: (formData: FormData) =>
         api.post<UploadAvatarResponse>('/user/upload-avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         }),
-    logout: () => api.post('/auth/logout'),
 };
 
 export const PersonalAccount: React.FC = () => {
@@ -60,7 +52,8 @@ export const PersonalAccount: React.FC = () => {
     const navigate = useNavigate();
     const { logout } = useAuthStore();
 
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<IUser | null>(null);
+    const [userInfo, setUserInfo] = useState<IUserInfo | null>(null);
     const [loading, setLoading] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
@@ -77,16 +70,18 @@ export const PersonalAccount: React.FC = () => {
 
             try {
                 const userData = await getUserByUid(firebaseUser.uid);
+                const userInfoData = await getUserInfo(firebaseUser.uid);
 
                 if (!mounted || !userData) return;
 
                 setUser(userData);
-                setAvatarUrl(userData.avatar ?? undefined);
+                setUserInfo(userInfoData);
+                setAvatarUrl(userInfoData?.profile_photo_url ?? undefined);
 
                 form.setFieldsValue({
                     name: userData.name,
                     surname: userData.surname,
-                    height: userData.height ?? undefined,
+                    height: userInfoData?.height ?? undefined,
                     email: userData.email,
                     phone: userData.phone ?? undefined,
                 });
@@ -108,7 +103,7 @@ export const PersonalAccount: React.FC = () => {
             form.setFieldsValue({
                 name: user.name,
                 surname: user.surname,
-                height: user.height ?? undefined,
+                height: userInfo?.height ?? undefined,
                 email: user.email,
                 phone: user.phone ?? undefined,
             } as UpdateUserPayload);
@@ -119,13 +114,27 @@ export const PersonalAccount: React.FC = () => {
     const handleSave = async () => {
         try {
             setLoading(true);
+
+            const user = auth.currentUser;
+            if (!user) {
+                message.error('Пользователь не авторизован');
+                return;
+            }
+
             const values = await form.validateFields();
-            const res = await apiUser.update(values as UpdateUserPayload);
-            setUser(res.data);
-            setAvatarUrl(res.data.avatar ?? undefined);
+
+            const updatedUser = await updateUserByUid(
+                user.uid,
+                values as IUser
+            );
+
+            setUser(updatedUser);
+            setAvatarUrl(updatedUser.avatar ?? undefined);
             setEditMode(false);
+
             message.success('Данные сохранены');
-        } catch {
+        } catch (error) {
+            console.error(error);
             message.error('Ошибка при сохранении');
         } finally {
             setLoading(false);
@@ -134,11 +143,52 @@ export const PersonalAccount: React.FC = () => {
 
     const handlePasswordChange = async (values: ChangePasswordPayload) => {
         try {
-            await apiUser.changePassword(values);
+            const user = auth.currentUser;
+
+            if (!user || !user.email) {
+                message.error('Пользователь не авторизован');
+                return;
+            }
+
+            const credential = EmailAuthProvider.credential(
+                user.email,
+                values.oldPassword
+            );
+
+            await reauthenticateWithCredential(user, credential);
+
+            await updatePassword(user, values.newPassword);
+
             passwordForm.resetFields();
-            message.success('Пароль изменён');
-        } catch {
-            message.error('Ошибка при смене пароля');
+            message.success('Пароль успешно изменён');
+        } catch (error: any) {
+            switch (error.code) {
+                case 'auth/wrong-password':
+                    passwordForm.setFields([
+                        {
+                            name: 'oldPassword',
+                            errors: ['Неверный текущий пароль'],
+                        },
+                    ]);
+                    break;
+
+                case 'auth/weak-password':
+                    passwordForm.setFields([
+                        {
+                            name: 'newPassword',
+                            errors: ['Пароль слишком простой'],
+                        },
+                    ]);
+                    break;
+
+                case 'auth/requires-recent-login':
+                    message.error('Пожалуйста, войдите заново и повторите попытку');
+                    break;
+
+                default:
+                    console.error(error);
+                    message.error('Ошибка при смене пароля');
+            }
         }
     };
 
@@ -197,7 +247,7 @@ export const PersonalAccount: React.FC = () => {
                         initialValues={{
                             name: user.name,
                             surname: user.surname,
-                            height: user.height ?? undefined,
+                            height: userInfo?.height ?? undefined,
                             email: user.email,
                             phone: user.phone ?? undefined,
                         }}
@@ -205,7 +255,14 @@ export const PersonalAccount: React.FC = () => {
                         <Form.Item
                             name="name"
                             label="Имя"
-                            rules={[{ required: true, message: 'Введите имя' }]}
+                            rules={[
+                                { required: true, message: 'Введите имя' },
+                                { min: 2, message: 'Минимум 2 символа' },
+                                {
+                                    pattern: /^[a-zA-Zа-яА-ЯёЁ]+$/,
+                                    message: 'Допустимы только буквы',
+                                }
+                            ]}
                         >
                             <Input />
                         </Form.Item>
@@ -213,20 +270,40 @@ export const PersonalAccount: React.FC = () => {
                         <Form.Item
                             name="surname"
                             label="Фамилия"
-                            rules={[{ required: true, message: 'Введите фамилию' }]}
+                            rules={[
+                                { required: true, message: 'Введите имя' },
+                                { min: 2, message: 'Минимум 2 символа' },
+                                {
+                                    pattern: /^[a-zA-Zа-яА-ЯёЁ]+$/,
+                                    message: 'Допустимы только буквы',
+                                }
+                            ]}
                         >
                             <Input />
                         </Form.Item>
 
                         <Form.Item
                             name="height"
-                            label="Рост"
+                            label="Рост (см)"
                             rules={[
-                                { required: false },
                                 {
-                                    type: 'number' as const,
-                                    transform: (v) => (v ? Number(v) : undefined),
-                                    message: 'Рост должен быть числом',
+                                    validator: (_, value) => {
+                                        if (value === undefined || value === null || value === '') {
+                                            return Promise.resolve();
+                                        }
+
+                                        const num = Number(value);
+
+                                        if (Number.isNaN(num)) {
+                                            return Promise.reject('Рост должен быть числом');
+                                        }
+
+                                        if (num < 50 || num > 250) {
+                                            return Promise.reject('Рост должен быть от 50 до 250 см');
+                                        }
+
+                                        return Promise.resolve();
+                                    },
                                 },
                             ]}
                         >
@@ -250,7 +327,13 @@ export const PersonalAccount: React.FC = () => {
                         <Form.Item
                             name="phone"
                             label="Телефон"
-                            rules={[{ required: false }]}
+                            rules={[
+                                {
+                                    pattern: /^\+7\d{10}$/,
+                                    message: 'Формат: +7XXXXXXXXXX',
+                                },
+                            ]}
+
                         >
                             <Input />
                         </Form.Item>
