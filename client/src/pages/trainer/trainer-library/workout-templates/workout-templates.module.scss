@@ -1,0 +1,747 @@
+.container {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    min-height: 100vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.filters {
+    background-color: #fafafa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #f0f0f0;
+}
+
+.filterItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filterLabel {
+    font-weight: 500;
+    color: #595959;
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+.filterStats {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+    color: #8c8c8c;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.activeFilter {
+    color: #1890ff;
+    font-weight: 500;
+    background-color: rgba(24, 144, 255, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+// Аккордеон
+.accordionContainer {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.plansAccordion {
+    border: none;
+
+    :global(.ant-collapse-item) {
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &:hover {
+            background-color: #fafafa;
+        }
+    }
+
+    :global(.ant-collapse-header) {
+        padding: 1rem 1.5rem !important;
+        align-items: center !important;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: rgba(24, 144, 255, 0.02);
+        }
+    }
+
+    :global(.ant-collapse-content-box) {
+        padding: 0 !important;
+    }
+
+    :global(.ant-collapse-expand-icon) {
+        padding-right: 0.75rem !important;
+    }
+}
+
+.planPanel {
+    transition: all 0.3s ease;
+
+    &:global(.ant-collapse-item-active) {
+        background-color: #fafafa;
+
+        .panelHeader {
+            .planTitle {
+                color: #722ed1;
+            }
+        }
+    }
+}
+
+.panelHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-right: 1rem;
+    cursor: pointer;
+}
+
+.planHeader {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.planTitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    transition: color 0.3s ease;
+}
+
+.planTags {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.difficultyTag {
+    margin: 0;
+    font-size: 0.85rem;
+    padding: 0.15rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.goalTag {
+    margin: 0;
+    font-size: 0.85rem;
+    padding: 0.15rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.planDuration {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #666;
+    font-size: 0.9rem;
+    background-color: rgba(114, 46, 209, 0.08);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+
+    :global(.anticon) {
+        font-size: 0.85rem;
+        color: #722ed1;
+    }
+}
+
+.planWeeks {
+    color: #fa8c16;
+    font-size: 0.9rem;
+    background-color: rgba(250, 140, 22, 0.08);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+}
+
+.planActions {
+    display: flex;
+    gap: 0.25rem;
+
+    :global(.ant-btn) {
+        height: 32px;
+        width: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+    }
+}
+
+// Контент внутри аккордеона
+.panelContent {
+    padding: 1.5rem;
+    background-color: #fafafa;
+    border-top: 1px solid #f0f0f0;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.descriptionSection {
+    margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #1a1a1a;
+    margin: 0 0 1rem 0;
+    font-weight: 500;
+
+    :global(.anticon) {
+        font-size: 0.9rem;
+        color: #722ed1;
+    }
+}
+
+.planDescription {
+    color: #595959;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin: 0;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 6px;
+    border-left: 3px solid #722ed1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.planDetails {
+    margin-bottom: 1.5rem;
+
+    :global(.ant-card) {
+        height: 100%;
+    }
+}
+
+.detailValue {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: center;
+}
+
+.weeksSection {
+    margin-bottom: 1rem;
+}
+
+.weeksAccordion {
+    :global(.ant-collapse-header) {
+        font-weight: 500;
+    }
+}
+
+.workoutsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.workoutCard {
+    :global(.ant-card-head) {
+        background-color: #fafafa;
+    }
+}
+
+.workoutHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.exercisesList {
+    margin-top: 1rem;
+}
+
+.exerciseItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.exerciseDetails {
+    color: #8c8c8c;
+    font-size: 0.9rem;
+}
+
+.emptySection {
+    text-align: center;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 6px;
+    border: 2px dashed #f0f0f0;
+}
+
+.emptyText {
+    color: #bfbfbf;
+    font-style: italic;
+    margin: 0;
+}
+
+.noResults {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: white;
+    border-radius: 8px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    p {
+        color: #8c8c8c;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        max-width: 400px;
+        line-height: 1.6;
+    }
+
+    :global(.ant-btn) {
+        margin-top: 0.5rem;
+    }
+}
+
+// Стили для модалок
+:global(.ant-modal-body) {
+    .formRow {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .formThird {
+        flex: 1;
+        margin-bottom: 0;
+    }
+}
+
+.formSectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
+
+    h4 {
+        margin: 0;
+        color: #1a1a1a;
+    }
+}
+
+.subSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+
+    h5 {
+        margin: 0;
+        color: #595959;
+    }
+}
+
+.limitText {
+    color: #ff4d4f;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.weekCard {
+    margin-bottom: 1rem;
+
+    :global(.ant-card-head) {
+        background-color: #fafafa;
+    }
+}
+
+.workoutFormCard {
+    margin-bottom: 1rem;
+
+    :global(.ant-card-head) {
+        background-color: #fafafa;
+        padding: 0.5rem 1rem;
+    }
+
+    :global(.ant-card-body) {
+        padding: 1rem;
+    }
+}
+
+.deleteContent {
+    text-align: center;
+    padding: 1rem 0;
+
+    p {
+        color: #595959;
+        margin-bottom: 1rem;
+    }
+}
+
+.deletePlanTitle {
+    color: #1a1a1a;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: #fafafa;
+    border-radius: 6px;
+    border-left: 3px solid #ff4d4f;
+}
+
+.deletePlanDetails {
+    color: #8c8c8c;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.deleteWarning {
+    color: #ff4d4f;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.75rem;
+    background-color: rgba(255, 77, 79, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 77, 79, 0.2);
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+
+        .title {
+            text-align: center;
+        }
+    }
+
+    .filters {
+        padding: 1rem;
+    }
+
+    .filterItem {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+
+        .filterLabel {
+            font-size: 0.9rem;
+        }
+    }
+
+    .filterStats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .panelHeader {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .planActions {
+        align-self: flex-start;
+    }
+
+    :global(.ant-modal) {
+        max-width: 95vw;
+        margin: 0.5rem;
+    }
+
+    .formRow {
+        flex-direction: column;
+        gap: 0 !important;
+    }
+
+    .planTags {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sectionTitle {
+        font-size: 0.95rem;
+    }
+
+    .planDescription {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+    }
+
+    .subSectionHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+// Анимации для интерактивных элементов
+:global(.ant-btn) {
+    transition: all 0.2s ease;
+}
+
+:global(.ant-tag) {
+    transition: all 0.2s ease;
+}
+
+:global(.ant-collapse-header) {
+    transition: all 0.3s ease !important;
+}
+
+// Градиентный эффект для заголовка
+.title {
+    background: linear-gradient(45deg, #1a1a1a, #722ed1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 1rem;
+
+    p {
+        color: #8c8c8c;
+        font-size: 1.1rem;
+    }
+}
+
+// Улучшения для карточек
+:global(.ant-card) {
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// В training-plans.module.scss добавьте эти стили:
+
+.exerciseModalContent {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.exerciseFilters {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.exercisesListModal {
+    margin-top: 1rem;
+}
+
+.exerciseCard {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 100%;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-color: #1890ff;
+    }
+}
+
+.exerciseCardContent {
+    padding: 0.5rem;
+}
+
+.exerciseCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.exerciseCardDescription {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.noExercisesFound {
+    text-align: center;
+    padding: 3rem;
+    color: #8c8c8c;
+}
+
+.exerciseItem {
+    padding: 1rem;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+    background-color: white;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: #fafafa;
+    }
+}
+
+.exerciseInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.exerciseTitleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.exerciseParams {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.paramItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.paramLabel {
+    font-weight: 500;
+    color: #595959;
+    font-size: 0.9rem;
+    min-width: 80px;
+}
+
+.emptyExercises {
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed #f0f0f0;
+    border-radius: 6px;
+    margin-top: 1rem;
+
+    :global(.ant-btn) {
+        margin-top: 1rem;
+    }
+}
+
+.emptyWorkouts {
+    text-align: center;
+    padding: 2rem;
+    color: #bfbfbf;
+    font-style: italic;
+}
+
+.workoutHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+// Для мобильных устройств
+@media (max-width: 768px) {
+    .exerciseParams {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .workoutHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .paramItem {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .exerciseCard {
+        margin-bottom: 1rem;
+    }
+}
+
+.smallTag {
+    font-size: 12px;
+    padding: 2px 6px;
+    height: auto;
+}

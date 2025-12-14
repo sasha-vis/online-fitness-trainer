@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'; // Используем NavLink вместо Link
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import styles from './trainer-library.module.scss';
 import { Breadcrumb } from 'antd';
 
