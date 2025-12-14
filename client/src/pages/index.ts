@@ -3,7 +3,7 @@ export { Auth } from './auth';
 export { PersonalAccount } from './personal-account';
 export { Chat } from './chat';
 export { NotFound } from './not-found';
-export { Nutrition } from './client/nutrition/nutrition';
+export { Nutrition } from './client/client-nutrition/nutrition';
 export { NutritionDetail } from './client/nutrition-detail/nutrition-detail';
 export { Workouts } from './client/workouts/workouts';
 export { WorkoutDetail } from './client/workout-detail/workout-detail';
