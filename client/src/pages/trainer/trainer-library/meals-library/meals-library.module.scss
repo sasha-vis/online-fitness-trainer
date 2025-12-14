@@ -1,0 +1,633 @@
+.container {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    min-height: 100vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.filters {
+    background-color: #fafafa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #f0f0f0;
+}
+
+.filterItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filterLabel {
+    font-weight: 500;
+    color: #595959;
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+.filterStats {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+    color: #8c8c8c;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.activeFilter {
+    margin-left: 1rem;
+    color: #1890ff;
+    font-weight: 500;
+    background-color: rgba(24, 144, 255, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+// Аккордеон
+.accordionContainer {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.dishesAccordion {
+    border: none;
+
+    :global(.ant-collapse-item) {
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &:hover {
+            background-color: #fafafa;
+        }
+    }
+
+    :global(.ant-collapse-header) {
+        padding: 1rem 1.5rem !important;
+        align-items: center !important;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: rgba(24, 144, 255, 0.02);
+        }
+    }
+
+    :global(.ant-collapse-content-box) {
+        padding: 0 !important;
+    }
+
+    :global(.ant-collapse-expand-icon) {
+        padding-right: 0.75rem !important;
+    }
+}
+
+.dishPanel {
+    transition: all 0.3s ease;
+
+    &:global(.ant-collapse-item-active) {
+        background-color: #fafafa;
+
+        .panelHeader {
+            .dishTitle {
+                color: #52c41a;
+            }
+        }
+    }
+}
+
+.panelHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-right: 1rem;
+    cursor: pointer;
+}
+
+.dishHeader {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dishTitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1a1a1a;
+    transition: color 0.3s ease;
+}
+
+.dishTags {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.categoryTag {
+    margin: 0;
+    font-size: 0.85rem;
+    padding: 0.15rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.dishNutrition {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #666;
+    font-size: 0.9rem;
+    background-color: rgba(82, 196, 26, 0.08);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+}
+
+.calories {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: #fa541c;
+
+    :global(.anticon) {
+        font-size: 0.85rem;
+    }
+}
+
+.protein {
+    color: #1890ff;
+    font-weight: 500;
+}
+
+.carbs {
+    color: #fa8c16;
+    font-weight: 500;
+}
+
+.fat {
+    color: #722ed1;
+    font-weight: 500;
+}
+
+.dishActions {
+    display: flex;
+    gap: 0.25rem;
+
+    :global(.ant-btn) {
+        height: 32px;
+        width: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+    }
+}
+
+// Контент внутри аккордеона
+.panelContent {
+    padding: 1.5rem;
+    background-color: #fafafa;
+    border-top: 1px solid #f0f0f0;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.descriptionSection {
+    margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #1a1a1a;
+    margin: 0 0 1rem 0;
+    font-weight: 500;
+
+    :global(.anticon) {
+        font-size: 0.9rem;
+        color: #52c41a;
+    }
+}
+
+.dishDescription {
+    color: #595959;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin: 0;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 6px;
+    border-left: 3px solid #52c41a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.nutritionSection {
+    margin-bottom: 1.5rem;
+}
+
+.nutritionGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.nutritionItem {
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: #fafafa;
+        transform: translateY(-2px);
+    }
+
+    &:nth-child(1) {
+        border-top: 3px solid #fa541c;
+    }
+    &:nth-child(2) {
+        border-top: 3px solid #1890ff;
+    }
+    &:nth-child(3) {
+        border-top: 3px solid #fa8c16;
+    }
+    &:nth-child(4) {
+        border-top: 3px solid #722ed1;
+    }
+}
+
+.nutritionValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+
+    &:nth-child(1) {
+        color: #fa541c;
+    }
+    &:nth-child(2) {
+        color: #1890ff;
+    }
+    &:nth-child(3) {
+        color: #fa8c16;
+    }
+    &:nth-child(4) {
+        color: #722ed1;
+    }
+}
+
+.nutritionLabel {
+    color: #8c8c8c;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.videoSection {
+    margin-bottom: 1rem;
+}
+
+.videoContainer {
+    position: relative;
+    background-color: #000;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    iframe {
+        display: block;
+    }
+}
+
+.videoButton {
+    color: #1890ff;
+    font-weight: 500;
+    padding-left: 0;
+
+    &:hover {
+        color: #40a9ff;
+    }
+}
+
+.noResults {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: white;
+    border-radius: 8px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    p {
+        color: #8c8c8c;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        max-width: 400px;
+        line-height: 1.6;
+    }
+
+    :global(.ant-btn) {
+        margin-top: 0.5rem;
+    }
+}
+
+// Стили для модалок
+:global(.ant-modal-body) {
+    .formRow {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .formQuarter {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .formHalf {
+        flex: 1;
+        margin-bottom: 0;
+    }
+}
+
+.deleteContent {
+    text-align: center;
+    padding: 1rem 0;
+
+    p {
+        color: #595959;
+        margin-bottom: 1rem;
+    }
+}
+
+.deleteDishTitle {
+    color: #1a1a1a;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: #fafafa;
+    border-radius: 6px;
+    border-left: 3px solid #ff4d4f;
+}
+
+.deleteDishDetails {
+    color: #8c8c8c;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.deleteWarning {
+    color: #ff4d4f;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.75rem;
+    background-color: rgba(255, 77, 79, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 77, 79, 0.2);
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+
+        .title {
+            text-align: center;
+        }
+    }
+
+    .filters {
+        padding: 1rem;
+    }
+
+    .filterItem {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+
+        .filterLabel {
+            font-size: 0.9rem;
+        }
+    }
+
+    .panelHeader {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .dishActions {
+        align-self: flex-start;
+    }
+
+    :global(.ant-modal) {
+        max-width: 95vw;
+        margin: 0.5rem;
+    }
+
+    .formRow {
+        flex-direction: column;
+        gap: 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .dishTags {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .dishNutrition {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .sectionTitle {
+        font-size: 0.95rem;
+    }
+
+    .dishDescription {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+    }
+
+    .videoContainer {
+        iframe {
+            height: 200px;
+        }
+    }
+}
+
+// Анимации для интерактивных элементов
+:global(.ant-btn) {
+    transition: all 0.2s ease;
+}
+
+:global(.ant-tag) {
+    transition: all 0.2s ease;
+}
+
+:global(.ant-collapse-header) {
+    transition: all 0.3s ease !important;
+}
+
+// Ховер-эффекты для кнопок действий
+.dishActions {
+    :global(.ant-btn[type='text']) {
+        &:hover {
+            transform: translateY(-1px);
+
+            &:first-child {
+                color: #ff4d4f;
+            }
+
+            &:nth-child(2) {
+                color: #52c41a;
+            }
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}
+
+// Стили для активного состояния фильтров
+:global(.ant-select-focused) {
+    .filterItem & {
+        .filterLabel {
+            color: #52c41a;
+        }
+    }
+}
+
+// Кастомный скроллбар для контейнера аккордеона
+.accordionContainer {
+    scrollbar-width: thin;
+    scrollbar-color: #d9d9d9 transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: #d9d9d9;
+        border-radius: 3px;
+
+        &:hover {
+            background-color: #bfbfbf;
+        }
+    }
+}
+
+.dishTitle {
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: #52c41a;
+        transition: width 0.3s ease;
+    }
+}
+
+.dishPanel:global(.ant-collapse-item-active) {
+    .dishTitle::after {
+        width: 100%;
+    }
+}
+
+.sectionTitle {
+    svg {
+        filter: drop-shadow(0 1px 1px rgba(82, 196, 26, 0.2));
+    }
+}
+
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 1rem;
+
+    p {
+        color: #8c8c8c;
+        font-size: 1.1rem;
+    }
+}

@@ -5,24 +5,6 @@ export const TrainerProfile = () => {
         <div>
             <h1>Мой тренер</h1>
 
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                <Link to="/client">
-                    <button>🏠 Главная</button>
-                </Link>
-                <Link to="/client/nutrition">
-                    <button>🥗 Питание</button>
-                </Link>
-                <Link to="/client/workouts">
-                    <button>💪 Тренировки</button>
-                </Link>
-                <Link to="/client/progress">
-                    <button>📈 Прогресс</button>
-                </Link>
-                <Link to="/client/profile">
-                    <button>👤 Профиль</button>
-                </Link>
-            </div>
-
             <div
                 style={{
                     border: '1px solid #ddd',
