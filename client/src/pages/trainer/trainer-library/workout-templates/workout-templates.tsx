@@ -12,7 +12,7 @@ import {
     message,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { Outlet } from 'react-router-dom';
+// import { Outlet } from 'react-router-dom';
 
 import { WorkoutFormData } from '@shared/stores/workout/workout-types';
 
@@ -55,20 +55,10 @@ export const WorkoutTemplates: React.FC<WorkoutTemplates> = ({ onSave }) => {
 
     const uploadProps = {
         name: 'file',
-        action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76', // Замените на реальный эндпоинт, напр. Firebase Storage
+        action: '', // Замените на реальный эндпоинт, напр. Firebase Storage
         headers: {
             authorization: 'authorization-text',
         },
-        // onChange(info) {
-        //     if (info.file.status !== 'uploading') {
-        //         console.log(info.file, info.fileList);
-        //     }
-        //     if (info.file.status === 'done') {
-        //         // Обработайте успешную загрузку
-        //     } else if (info.file.status === 'error') {
-        //         // Обработайте ошибку
-        //     }
-        // },
     };
 
     return (
@@ -151,7 +141,7 @@ export const WorkoutTemplates: React.FC<WorkoutTemplates> = ({ onSave }) => {
                     </Row>
                 </Form>
             </Modal>
-            <Outlet />
+            {/* <Outlet /> */}
         </>
     );
 };

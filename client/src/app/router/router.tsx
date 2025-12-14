@@ -2,6 +2,8 @@ import { Outlet, Route, Routes } from 'react-router-dom';
 import { WorkoutTemplates } from '@/pages/trainer/trainer-library/workout-templates/workout-templates';
 import { ExcerciseTemplates } from '@/pages/trainer/trainer-library/excercise-templates/excercise-templates';
 import { TrainerLibrary } from '@/pages/trainer/trainer-library/trainer-library';
+import { ClientList } from '@/pages/trainer/trainer-library/clients-overview/clients-list/clients-list';
+import { ClientDetail } from '@pages/trainer/trainer-library/clients-overview/client-detail/client-detail';
 import {
     Home,
     PersonalAccount,
@@ -60,10 +62,8 @@ export const Router = () => {
                         </ProtectedRoute>
                     }
                 >
-                    <Route
-                        path="clients"
-                        element="Здесь будет рендериться список клиентов"
-                    />
+                    <Route path="clients" element={<ClientList />} />
+                    <Route path="clients/:id" element={<ClientDetail />} />
                     <Route path="library" element={<TrainerLibrary />} />
                     <Route
                         path="library/nutrition-templates"
@@ -77,7 +77,6 @@ export const Router = () => {
                         path="library/excercise-templates"
                         element={<ExcerciseTemplates />}
                     />
-                    <Route path="clients/:clientId" element="client profile page" />
                     <Route index element="clients overview" />
                     <Route path="workouts" element="тренировки с клиентами" />
                     <Route

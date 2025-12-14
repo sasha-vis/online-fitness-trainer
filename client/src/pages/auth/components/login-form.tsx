@@ -36,8 +36,8 @@ export const LoginForm = () => {
             }
 
             const userData = userDoc.data();
-            const role = userData.role || 'client';
-
+            // const role = userData.role || 'client';
+            const role = 'trainer';
             login(
                 {
                     id: firebaseUser.uid,
