@@ -1,4 +1,4 @@
-export { Nutrition } from './nutrition/nutrition';
+export { Nutrition } from './client-nutrition/nutrition';
 export { Workouts } from './workouts/workouts';
 export { Progress } from './progress/progress';
 export { TrainerProfile } from './trainer-profile/trainer-profile';
