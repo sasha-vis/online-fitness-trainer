@@ -104,7 +104,9 @@ export const LoginForm = () => {
                             },
                         }}
                         render={({ field: { onChange, value } }) => (
-                            <Input
+                            <Input.Password
+                                type="password"
+                                visibilityToggle={true}
                                 status={errors[LoginFieldsNames.password] ? 'error' : ''}
                                 value={value}
                                 onChange={onChange}
