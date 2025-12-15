@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { WorkoutList } from '@/widgets/workouts/workouts-widget';
 import { workoutPlans } from '@shared/constants/workout-plans';
-import { WorkoutModal } from '@/widgets/workout-modal/workout-modal';
+import { WorkoutModal } from '@/widgets/workout-plan-modal/workout-plan-modal';
 
 import { usePlansStore } from '@shared/stores/workout/workout';
 
