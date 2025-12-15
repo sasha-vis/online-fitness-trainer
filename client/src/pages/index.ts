@@ -14,7 +14,10 @@ export { NutritionTemplates } from './trainer/trainer-library/nutrition-template
 export { WorkoutTemplates } from './trainer/trainer-library/workout-templates/workout-templates';
 export { MealsLibrary } from './trainer/trainer-library/meals-library/meals-library';
 export { ExercisesLibrary } from './trainer/trainer-library/exercises-library/exercises-library';
-export { TrainerClients } from './trainer/trainer-clients/trainer-clients';
+export { ClientList } from './trainer/trainer-clients/client-list';
+export { ClientDetail } from './trainer/trainer-clients/client-detail';
+export { ClientCard } from './trainer/trainer-clients/client-card';
+export { WorkoutPlanEditor } from './trainer/trainer-clients/workout-plan-editor.tsx';
 export { ClientProfile } from './trainer/client-profile/client-profile';
 export { WorkoutsForm } from './trainer/client-profile/workouts-form/workouts-form';
 export { WorkoutDetailForm } from './trainer/client-profile/workout-detail-form/workout-detail-form';

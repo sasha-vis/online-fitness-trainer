@@ -11,11 +11,10 @@ export interface NutritionAssignment {
     assignedAt?: Date;
 }
 
-export async function getNutritionAssignment(uid: string): Promise<NutritionAssignment | null> {
-    const q = query(
-        collection(db, 'nutritionAssignments'),
-        where('clientId', '==', uid)
-    );
+export async function getNutritionAssignment(
+    uid: string
+): Promise<NutritionAssignment | null> {
+    const q = query(collection(db, 'nutritionAssignments'), where('clientId', '==', uid));
 
     const snap = await getDocs(q);
 
