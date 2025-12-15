@@ -15,10 +15,9 @@ import {
     WorkoutTemplates,
     MealsLibrary,
     ExercisesLibrary,
-    TrainerClients,
-    ClientProfile,
-    WorkoutsForm,
-    WorkoutDetailForm,
+    ClientList,
+    ClientDetail,
+    WorkoutPlanEditor,
     NutritionForm,
     NutritionDetailForm,
     ClientProgress,
@@ -81,13 +80,13 @@ export const Router = () => {
                         <Route path="exercises" element={<ExercisesLibrary />} />
                     </Route>
 
-                    <Route path="clients" element={<TrainerClients />} />
-                    <Route path="clients/:clientId" element={<ClientProfile />}>
-                        <Route path="workouts" element={<WorkoutsForm />} />
-                        <Route
+                    <Route path="clients" element={<ClientList />} />
+                    <Route path="clients/:clientId" element={<ClientDetail />}>
+                        <Route path="workout-plan" element={<WorkoutPlanEditor />} />
+                        {/* <Route
                             path="workouts/:workoutId"
                             element={<WorkoutDetailForm />}
-                        />
+                        /> */}
                         <Route path="nutrition" element={<NutritionForm />} />
                         <Route
                             path="nutrition/:nutritionId"

@@ -1,7 +1,7 @@
-import {doc, getDoc, updateDoc, deleteField, setDoc} from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteField, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase.ts';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import {IUser, IUserInfo, UpdateUserPayload} from "@pages/personal-account/types.ts";
+import { IUser, IUserInfo, UpdateUserPayload } from '@pages/personal-account/types.ts';
 
 export async function getUserByUid(uid: string): Promise<IUser | null> {
     const ref = doc(db, 'users', uid);
@@ -13,10 +13,7 @@ export async function getUserByUid(uid: string): Promise<IUser | null> {
 }
 
 export async function getUserInfo(uid: string): Promise<IUserInfo | null> {
-    const q = query(
-        collection(db, 'clientProfiles'),
-        where('userId', '==', uid)
-    );
+    const q = query(collection(db, 'clientProfiles'), where('userId', '==', uid));
 
     const snapshot = await getDocs(q);
 
@@ -24,7 +21,6 @@ export async function getUserInfo(uid: string): Promise<IUserInfo | null> {
 
     return snapshot.docs[0].data() as IUserInfo;
 }
-
 
 export async function updateUserByUid(
     uid: string,
@@ -74,4 +70,3 @@ export async function updateClientProfileByUserId(
 
     await setDoc(docRef, updateData, { merge: true });
 }
-

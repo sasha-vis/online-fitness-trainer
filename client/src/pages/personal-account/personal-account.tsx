@@ -6,9 +6,9 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/shared/stores';
 import { signOut as firebaseSignOut } from 'firebase/auth';
-import {getUserByUid, getUserInfo, updateUserByUid} from './api-user-firebase.ts';
+import { getUserByUid, getUserInfo, updateUserByUid } from './api-user-firebase.ts';
 import { onAuthStateChanged } from 'firebase/auth';
-import {IUser, IUserInfo} from "@pages/personal-account/types.ts";
+import { IUser, IUserInfo } from '@pages/personal-account/types.ts';
 import {
     EmailAuthProvider,
     reauthenticateWithCredential,
@@ -123,10 +123,7 @@ export const PersonalAccount: React.FC = () => {
 
             const values = await form.validateFields();
 
-            const updatedUser = await updateUserByUid(
-                user.uid,
-                values as IUser
-            );
+            const updatedUser = await updateUserByUid(user.uid, values as IUser);
 
             setUser(updatedUser);
             setAvatarUrl(updatedUser.avatar ?? undefined);
@@ -261,7 +258,7 @@ export const PersonalAccount: React.FC = () => {
                                 {
                                     pattern: /^[a-zA-Zа-яА-ЯёЁ]+$/,
                                     message: 'Допустимы только буквы',
-                                }
+                                },
                             ]}
                         >
                             <Input />
@@ -276,7 +273,7 @@ export const PersonalAccount: React.FC = () => {
                                 {
                                     pattern: /^[a-zA-Zа-яА-ЯёЁ]+$/,
                                     message: 'Допустимы только буквы',
-                                }
+                                },
                             ]}
                         >
                             <Input />
@@ -288,18 +285,26 @@ export const PersonalAccount: React.FC = () => {
                             rules={[
                                 {
                                     validator: (_, value) => {
-                                        if (value === undefined || value === null || value === '') {
+                                        if (
+                                            value === undefined ||
+                                            value === null ||
+                                            value === ''
+                                        ) {
                                             return Promise.resolve();
                                         }
 
                                         const num = Number(value);
 
                                         if (Number.isNaN(num)) {
-                                            return Promise.reject('Рост должен быть числом');
+                                            return Promise.reject(
+                                                'Рост должен быть числом'
+                                            );
                                         }
 
                                         if (num < 50 || num > 250) {
-                                            return Promise.reject('Рост должен быть от 50 до 250 см');
+                                            return Promise.reject(
+                                                'Рост должен быть от 50 до 250 см'
+                                            );
                                         }
 
                                         return Promise.resolve();
@@ -333,7 +338,6 @@ export const PersonalAccount: React.FC = () => {
                                     message: 'Формат: +7XXXXXXXXXX',
                                 },
                             ]}
-
                         >
                             <Input />
                         </Form.Item>
