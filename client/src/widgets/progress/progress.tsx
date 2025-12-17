@@ -25,8 +25,8 @@ export const ProgressWidget = ({
         waist: { label: 'Талия', color: '#82ca9d' },
         hips: { label: 'Бёдра', color: '#ffc658' },
         chest: { label: 'Грудь', color: '#ff7300' },
-        arms: { label: 'Руки', color: '#0088fe' },
-        legs: { label: 'Ноги', color: '#00c49f' },
+        arm: { label: 'Руки', color: '#0088fe' },
+        leg: { label: 'Ноги', color: '#00c49f' },
     };
 
     return (

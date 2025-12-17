@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
 
 import {
     DatePicker,
     Checkbox,
-    Pagination,
+    message,
     Typography,
     Row,
     Col,
@@ -20,13 +20,12 @@ import {
 } from '@ant-design/icons';
 
 import { useProgressStore } from '@shared/stores/user/progress/progress';
+import { useAuthStore } from '@shared/stores/user/user';
 import { ProgressWidget } from '@/widgets/progress/progress';
-
-import { CommentsList } from './ui/comments';
+import { BodyMeasurementModal } from './body-measurements-modal'
+import { BodyMeasurement } from '@shared/stores/user/progress/progress-types';
 
 import { PARAMS } from '@shared/contants/params';
-
-import { ProgressReport, ParamKey } from '@/shared/stores/user/progress/progress-types';
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
@@ -34,45 +33,20 @@ const { Title, Text } = Typography;
 type ModalType = 'month' | 'year' | 'week' | 'range' | null;
 
 export const Progress = () => {
-    const { reports, filters, setFilters, resetDateFilters, setPage } =
+    const [modalOpen, setModalOpen] = useState(false);
+    const [editRecord, setEditRecord] = useState(null);
+    const { user } = useAuthStore()
+    const { measurements, loading, add, update, subscribe, filters, setFilters, resetDateFilters } =
         useProgressStore();
 
-    const withinRange = useMemo(() => {
-        return (r: ProgressReport) => {
-            const date = dayjs(r.date, 'DD/MM/YYYY');
-            const from = filters.fromDate;
-            const to = filters.toDate;
-            if (from && date.isBefore(from, 'day')) return false;
-            if (to && date.isAfter(to, 'day')) return false;
-            return true;
-        };
-    }, [filters.fromDate, filters.toDate]);
-
-    const filteredReports = useMemo(
-        () => reports.filter(withinRange),
-        [reports, withinRange]
-    );
+    useEffect(() => {
+        // if (user?.uid) subscribe(user.uid);
+        if (user?.id) subscribe(user.id);
+    }, [user, subscribe])
 
     const activeParams = useMemo(() => {
         return PARAMS.map((p) => p.key).filter((k) => filters.showParams[k]);
     }, [filters.showParams]);
-
-    const chartData = useMemo(() => {
-        return filteredReports.map((r: ProgressReport) => {
-            const entry: { date: string } & Partial<Record<ParamKey, number>> = {
-                date: r.date,
-            };
-            activeParams.forEach((param) => {
-                entry[param] = r[param];
-            });
-            return entry;
-        });
-    }, [filteredReports, activeParams]);
-
-    const paginatedReports = useMemo(() => {
-        const start = (filters.page - 1) * filters.pageSize;
-        return filteredReports.slice(start, start + filters.pageSize);
-    }, [filteredReports, filters.page, filters.pageSize]);
 
     const onDateRangeChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
         if (!dates) {
@@ -92,7 +66,6 @@ export const Progress = () => {
                 ...filters.showParams,
                 [param]: checked,
             },
-            page: 1,
         });
     };
 
@@ -100,10 +73,6 @@ export const Progress = () => {
         filters.fromDate ? dayjs(filters.fromDate) : null,
         filters.toDate ? dayjs(filters.toDate) : null,
     ];
-    const onPageChange = (page: number) => {
-        setPage(page);
-    };
-
     const [openModalType, setOpenModalType] = useState<ModalType>(null);
 
     const showModal = (type: ModalType) => {
@@ -113,6 +82,32 @@ export const Progress = () => {
     const closeModal = () => {
         setOpenModalType(null);
     };
+
+    const handleModalSubmit = async (values: Omit<BodyMeasurement, 'id' | 'clientId' | 'createdAt' | 'updatedAt'>) => {
+        if (!user?.id) {
+            message.error('Пользователь не авторизован');
+            return;
+        }
+        if (editRecord?.id) {
+            await update(editRecord.id, values);
+        } else {
+            await add({ 
+                ...values, 
+                clientId: user.id
+            });
+        }
+    }
+
+    const chartData = useMemo(() => measurements.map(m => ({
+        date: m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '',
+        arm: m.arm,
+        chest: m.chest,
+        hips: m.hips,
+        leg: m.leg,
+        waist: m.waist,
+        weight: m.weight,
+    })), [measurements]);
+
 
     return (
         <section style={{ padding: 24 }}>
@@ -167,12 +162,10 @@ export const Progress = () => {
                         ))}
                     </Flex>
                     <Flex vertical>
-                        <NavLink to="new-report">
-                            <Flex gap={10}>
+                            <Flex gap={10} style={{ cursor: 'pointer', color: '#1677ff' }}>
                                 <PlusSquareOutlined />
-                                <Text>Добавить прогресс</Text>
+                                <Text onClick={() => setModalOpen(true)}>Добавить прогресс</Text>
                             </Flex>
-                        </NavLink>
                         <NavLink to="reports">
                             <Flex gap={10}>
                                 <OrderedListOutlined />
@@ -197,15 +190,13 @@ export const Progress = () => {
                     </Button>
                 </Col>
             </Row>
-            <CommentsList data={paginatedReports} />
-            <Row justify="end" style={{ marginTop: 16 }}>
-                <Pagination
-                    current={filters.page}
-                    pageSize={filters.pageSize}
-                    onChange={onPageChange}
-                    showSizeChanger={false}
-                />
-            </Row>
+            <BodyMeasurementModal 
+                open={modalOpen}
+                onClose={() => { setModalOpen(false); setEditRecord(null); }}
+                onSubmit={handleModalSubmit}
+                loading={loading}
+                initialValues={editRecord || undefined}
+            />
         </section>
     );
 };
