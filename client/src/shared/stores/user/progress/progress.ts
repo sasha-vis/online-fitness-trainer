@@ -1,38 +1,73 @@
 import { create } from 'zustand';
-import dayjs from 'dayjs';
 import { ProgressState } from './progress-types';
+import { subscribeMeasurements, addMeasurement, updateMeasurement, deleteMeasurement } from '@pages/client/progress/progress-services/progress-services';
 
-export const useProgressStore = create<ProgressState>((set) => ({
-    reports: [
-        {
-            id: '1',
-            date: dayjs('2024-05-01').format('DD/MM/YYYY'),
-            weight: 70,
-            waist: 50,
-            hips: 45,
-            chest: 90,
-            arms: 60,
-            legs: 105,
-            comments: [
-                { id: 3, text: 'Хорошо идёт прогресс, продолжай!' },
-                { id: 4, text: 'Так держать!' },
-            ],
-        },
-        {
-            id: '2',
-            date: dayjs('2024-06-01').format('DD/MM/YYYY'),
-            weight: 69,
-            waist: 58,
-            hips: 75,
-            chest: 80,
-            arms: 60,
-            legs: 115,
-            comments: [
-                { id: 5, text: 'Не сбавляй темпов, еще чуть-чуть.' },
-                { id: 6, text: 'Стабильность' },
-            ],
-        },
-    ],
+
+
+export const useProgressStore = create<ProgressState>((set, get) => ({
+    measurements: [],
+    loading: false,
+    error: null,
+    subscribe: (clientId) => {
+        const currentUnsubscribe = get()._unsubscribe;
+        if (currentUnsubscribe) currentUnsubscribe()
+        const unsubscribe = subscribeMeasurements(clientId, (data) => set({ measurements: data }));
+        set({ _unsubscribe: unsubscribe });
+    },
+    add: async (data) => {
+        set({ loading: true, error: null });
+        try {
+        await addMeasurement(data);
+        } catch (e) {
+            if (e instanceof Error) {
+                set({
+                    error: e.message,
+                });
+            }else {
+                set({
+                    error: 'Ошибка при добавлении отчёта',
+                });
+            }
+        } finally {
+        set({ loading: false });
+        }
+    },
+    update: async (id, data) => {
+        set({ loading: true, error: null });
+        try {
+          await updateMeasurement(id, data);
+        } catch (e) {
+            if (e instanceof Error) {
+                set({
+                    error: e.message,
+                });
+            }else {
+                set({
+                    error: 'Ошибка при добавлении отчёта',
+                });
+            }
+        } finally {
+          set({ loading: false });
+        }
+    },
+    remove: async (id) => {
+        set({ loading: true, error: null });
+        try {
+          await deleteMeasurement(id);
+        } catch (e) {
+            if (e instanceof Error) {
+                set({
+                    error: e.message,
+                });
+            }else {
+                set({
+                    error: 'Ошибка при удаления отчёта',
+                });
+            }
+        } finally {
+          set({ loading: false });
+        }
+    },
     filters: {
         fromDate: null,
         toDate: null,
@@ -41,8 +76,8 @@ export const useProgressStore = create<ProgressState>((set) => ({
             waist: false,
             hips: false,
             chest: false,
-            arms: false,
-            legs: false,
+            arm: false,
+            leg: false,
         },
         page: 1,
         pageSize: 10,
@@ -68,16 +103,9 @@ export const useProgressStore = create<ProgressState>((set) => ({
                     waist: false,
                     hips: false,
                     chest: false,
-                    arms: false,
-                    legs: false,
+                    arm: false,
+                    leg: false,
                 },
-                page: 1,
-                pageSize: 10,
             },
         })),
-    addReport: (report) =>
-        set((state) => ({
-            reports: [...state.reports, report],
-        })),
-    setPage: (page) => set((state) => ({ filters: { ...state.filters, page } })),
 }));

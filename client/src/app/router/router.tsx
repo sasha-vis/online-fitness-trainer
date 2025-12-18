@@ -23,6 +23,7 @@ import {
     ClientProgress,
     NotFound,
 } from '@/pages';
+import { ReportsPage } from '@pages/client/progress/reports'
 import { Header, Footer } from '@/widgets';
 import { ProtectedRoute } from './protected-route';
 import { UnauthorizedOnlyRoute } from './unauthorized-only-route';
@@ -54,6 +55,7 @@ export const Router = () => {
                     <Route path="workouts" element={<Workouts />} />
                     <Route path="workouts/:workoutId" element={<WorkoutDetail />} />
                     <Route path="progress" element={<Progress />} />
+                    <Route path="progress/reports" element={<ReportsPage />}/>
                     <Route path="profile" element={<PersonalAccount />} />
                     <Route path="trainer" element={<TrainerProfile />}>
                         <Route path="chat" element={<Chat />} />
