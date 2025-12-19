@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
     Card,
@@ -10,7 +10,8 @@ import {
     Tabs,
     Breadcrumb,
     Spin,
-    Popconfirm, // Добавляем Popconfirm для подтверждения удаления
+    Popconfirm,
+    Alert, // Добавляем Popconfirm для подтверждения удаления
 } from 'antd';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
@@ -21,6 +22,7 @@ import {
     doc,
     getDoc,
     deleteDoc,
+    orderBy,
 } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { useTrainerStore } from '@shared/stores/trainer/trainer';
@@ -28,6 +30,7 @@ import { useAuthStore } from '@/shared/stores/user/user';
 import { WorkoutPlanModal, NutritionPlanModal } from '@/widgets';
 import { WorkoutPlanView } from './workout-plan-view';
 import { NutritionPlanView } from './nutrition-plan-view';
+import { ProgressView } from './progress-view';
 
 export const ClientDetail = () => {
     const { clientId } = useParams();
@@ -42,10 +45,24 @@ export const ClientDetail = () => {
     const [loadingPlans, setLoadingPlans] = useState(false);
     const [deletingWorkoutPlan, setDeletingWorkoutPlan] = useState(false);
     const [deletingNutritionPlan, setDeletingNutritionPlan] = useState(false);
+    const [progressData, setProgressData] = useState([]);
+    const [loadingProgress, setLoadingProgress] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'workout';
+
+    useEffect(() => {
+        // При монтировании компонента, если нет параметра tab - добавляем его
+        if (!searchParams.get('tab')) {
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('tab', 'workout');
+            setSearchParams(newParams, { replace: true }); // replace: true чтобы не добавлять в историю
+        }
+    }, []);
 
     useEffect(() => {
         fetchClient(clientId);
         fetchClientPlans();
+        fetchClientProgress();
     }, [clientId]);
 
     const fetchClientPlans = async () => {
@@ -118,6 +135,41 @@ export const ClientDetail = () => {
             message.error('Не удалось загрузить планы клиента');
         } finally {
             setLoadingPlans(false);
+        }
+    };
+
+    const fetchClientProgress = async () => {
+        if (!clientId) return;
+
+        try {
+            setLoadingProgress(true);
+
+            // Запрос отчетов из таблицы bodyMeasurements
+            const progressRef = collection(db, 'bodyMeasurements');
+            const progressQuery = query(
+                progressRef,
+                where('clientId', '==', clientId),
+                orderBy('createdAt', 'desc') // Сортируем по дате создания (новые сверху)
+            );
+            const progressSnapshot = await getDocs(progressQuery);
+
+            if (!progressSnapshot.empty) {
+                const data = progressSnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    // Преобразуем Firestore Timestamp в Date
+                    createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+                    updatedAt: doc.data().updatedAt?.toDate?.() || null,
+                })) as BodyMeasurement[];
+                setProgressData(data);
+            } else {
+                setProgressData([]);
+            }
+        } catch (error) {
+            console.error('Error fetching progress:', error);
+            message.error('Не удалось загрузить отчеты клиента');
+        } finally {
+            setLoadingProgress(false);
         }
     };
 
@@ -201,6 +253,12 @@ export const ClientDetail = () => {
         fetchClientPlans();
     };
 
+    const handleTabChange = (key) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('tab', key);
+        setSearchParams(newParams);
+    };
+
     return (
         <>
             <Breadcrumb
@@ -215,7 +273,7 @@ export const ClientDetail = () => {
                     },
                 ]}
             />
-            <Card style={{ width: 800, margin: 'auto' }}>
+            <Card style={{ width: 1000, margin: 'auto' }}>
                 <Avatar size={80} icon={<UserOutlined />} />
                 <Typography.Title level={2}>{selectedClient.name}</Typography.Title>
                 <Typography.Text>{selectedClient.email}</Typography.Text>
@@ -241,38 +299,48 @@ export const ClientDetail = () => {
                 </div>
 
                 <div style={{ marginTop: 30 }}>
-                    <Tabs defaultActiveKey="workout">
+                    <Tabs activeKey={activeTab} onChange={handleTabChange}>
                         <Tabs.TabPane tab="Тренировки" key="workout">
                             <div style={{ marginBottom: 16 }}>
-                                <Space>
-                                    <Button
-                                        type="primary"
-                                        onClick={() => setWorkoutModalVisible(true)}
-                                    >
-                                        {workoutPlan
-                                            ? 'Изменить план тренировок'
-                                            : 'Назначить план тренировок'}
-                                    </Button>
-
-                                    {workoutPlan && (
-                                        <Popconfirm
-                                            title="Удалить план тренировок"
-                                            description="Вы уверены, что хотите удалить план тренировок у клиента?"
-                                            onConfirm={handleDeleteWorkoutPlan}
-                                            okText="Да"
-                                            cancelText="Нет"
+                                {isTrainer ? (
+                                    <Space>
+                                        <Button
+                                            type="primary"
+                                            onClick={() => setWorkoutModalVisible(true)}
                                         >
-                                            <Button
-                                                danger
-                                                icon={<DeleteOutlined />}
-                                                loading={deletingWorkoutPlan}
-                                                disabled={deletingWorkoutPlan}
+                                            {workoutPlan
+                                                ? 'Изменить план тренировок'
+                                                : 'Назначить план тренировок'}
+                                        </Button>
+
+                                        {workoutPlan && (
+                                            <Popconfirm
+                                                title="Удалить план тренировок"
+                                                description="Вы уверены, что хотите удалить план тренировок у клиента?"
+                                                onConfirm={handleDeleteWorkoutPlan}
+                                                okText="Да"
+                                                cancelText="Нет"
                                             >
-                                                Удалить план
-                                            </Button>
-                                        </Popconfirm>
-                                    )}
-                                </Space>
+                                                <Button
+                                                    danger
+                                                    icon={<DeleteOutlined />}
+                                                    loading={deletingWorkoutPlan}
+                                                    disabled={deletingWorkoutPlan}
+                                                >
+                                                    Удалить план
+                                                </Button>
+                                            </Popconfirm>
+                                        )}
+                                    </Space>
+                                ) : (
+                                    <Alert
+                                        message="Нет доступа"
+                                        description="Вы не можете управлять планом, так как не являетесь тренером этого клиента"
+                                        type="info"
+                                        showIcon
+                                        style={{ marginBottom: 16 }}
+                                    />
+                                )}
                             </div>
 
                             {loadingPlans ? (
@@ -286,35 +354,45 @@ export const ClientDetail = () => {
 
                         <Tabs.TabPane tab="Питание" key="nutrition">
                             <div style={{ marginBottom: 16 }}>
-                                <Space>
-                                    <Button
-                                        type="primary"
-                                        onClick={() => setNutritionModalVisible(true)}
-                                    >
-                                        {nutritionPlan
-                                            ? 'Изменить план питания'
-                                            : 'Назначить план питания'}
-                                    </Button>
-
-                                    {nutritionPlan && (
-                                        <Popconfirm
-                                            title="Удалить план питания"
-                                            description="Вы уверены, что хотите удалить план питания у клиента?"
-                                            onConfirm={handleDeleteNutritionPlan}
-                                            okText="Да"
-                                            cancelText="Нет"
+                                {isTrainer ? (
+                                    <Space>
+                                        <Button
+                                            type="primary"
+                                            onClick={() => setNutritionModalVisible(true)}
                                         >
-                                            <Button
-                                                danger
-                                                icon={<DeleteOutlined />}
-                                                loading={deletingNutritionPlan}
-                                                disabled={deletingNutritionPlan}
+                                            {nutritionPlan
+                                                ? 'Изменить план питания'
+                                                : 'Назначить план питания'}
+                                        </Button>
+
+                                        {nutritionPlan && (
+                                            <Popconfirm
+                                                title="Удалить план питания"
+                                                description="Вы уверены, что хотите удалить план питания у клиента?"
+                                                onConfirm={handleDeleteNutritionPlan}
+                                                okText="Да"
+                                                cancelText="Нет"
                                             >
-                                                Удалить план
-                                            </Button>
-                                        </Popconfirm>
-                                    )}
-                                </Space>
+                                                <Button
+                                                    danger
+                                                    icon={<DeleteOutlined />}
+                                                    loading={deletingNutritionPlan}
+                                                    disabled={deletingNutritionPlan}
+                                                >
+                                                    Удалить план
+                                                </Button>
+                                            </Popconfirm>
+                                        )}
+                                    </Space>
+                                ) : (
+                                    <Alert
+                                        message="Нет доступа"
+                                        description="Вы не можете управлять планом, так как не являетесь тренером этого клиента"
+                                        type="info"
+                                        showIcon
+                                        style={{ marginBottom: 16 }}
+                                    />
+                                )}
                             </div>
 
                             {loadingPlans ? (
@@ -323,6 +401,16 @@ export const ClientDetail = () => {
                                 </div>
                             ) : (
                                 <NutritionPlanView plan={nutritionPlan} />
+                            )}
+                        </Tabs.TabPane>
+
+                        <Tabs.TabPane tab="Прогресс" key="progress">
+                            {loadingProgress ? (
+                                <div style={{ textAlign: 'center', padding: '20px' }}>
+                                    <Spin />
+                                </div>
+                            ) : (
+                                <ProgressView reports={progressData} />
                             )}
                         </Tabs.TabPane>
                     </Tabs>

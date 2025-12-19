@@ -10,7 +10,7 @@
 //     photosUrl: string[];
 //     createdAt: Date;
 // }
-  
+
 // export type BodyMeasurementForm = Omit<BodyMeasurement, 'id' | 'clientId' | 'photosUrl' | 'createdAt'> & {
 //     photos?: File[];
 // };

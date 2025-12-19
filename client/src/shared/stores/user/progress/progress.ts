@@ -1,71 +1,81 @@
 import { create } from 'zustand';
 import { ProgressState } from './progress-types';
-import { subscribeMeasurements, addMeasurement, updateMeasurement, deleteMeasurement } from '@pages/client/progress/progress-services/progress-services';
-
-
+import {
+    subscribeMeasurements,
+    addMeasurement,
+    updateMeasurement,
+    deleteMeasurement,
+} from '@pages/client/progress/progress-services/progress-services';
 
 export const useProgressStore = create<ProgressState>((set, get) => ({
     measurements: [],
     loading: false,
+    subscribeLoading: false,
     error: null,
     subscribe: (clientId) => {
+        set({ subscribeLoading: true, error: null });
         const currentUnsubscribe = get()._unsubscribe;
-        if (currentUnsubscribe) currentUnsubscribe()
-        const unsubscribe = subscribeMeasurements(clientId, (data) => set({ measurements: data }));
+        if (currentUnsubscribe) currentUnsubscribe();
+        const unsubscribe = subscribeMeasurements(clientId, (data) =>
+            set({
+                measurements: data,
+                subscribeLoading: false,
+            })
+        );
         set({ _unsubscribe: unsubscribe });
     },
     add: async (data) => {
         set({ loading: true, error: null });
         try {
-        await addMeasurement(data);
+            await addMeasurement(data);
         } catch (e) {
             if (e instanceof Error) {
                 set({
                     error: e.message,
                 });
-            }else {
+            } else {
                 set({
                     error: 'Ошибка при добавлении отчёта',
                 });
             }
         } finally {
-        set({ loading: false });
+            set({ loading: false });
         }
     },
     update: async (id, data) => {
         set({ loading: true, error: null });
         try {
-          await updateMeasurement(id, data);
+            await updateMeasurement(id, data);
         } catch (e) {
             if (e instanceof Error) {
                 set({
                     error: e.message,
                 });
-            }else {
+            } else {
                 set({
                     error: 'Ошибка при добавлении отчёта',
                 });
             }
         } finally {
-          set({ loading: false });
+            set({ loading: false });
         }
     },
     remove: async (id) => {
         set({ loading: true, error: null });
         try {
-          await deleteMeasurement(id);
+            await deleteMeasurement(id);
         } catch (e) {
             if (e instanceof Error) {
                 set({
                     error: e.message,
                 });
-            }else {
+            } else {
                 set({
                     error: 'Ошибка при удаления отчёта',
                 });
             }
         } finally {
-          set({ loading: false });
+            set({ loading: false });
         }
     },
     filters: {

@@ -4,3 +4,4 @@ export { Progress } from './progress/progress';
 export { TrainerProfile } from './trainer-profile/trainer-profile';
 export { WorkoutDetail } from './workout-detail/workout-detail';
 export { NutritionDetail } from './nutrition-detail/nutrition-detail';
+export { ReportsPage } from './progress/reports';

@@ -22,7 +22,7 @@ import {
 import { useProgressStore } from '@shared/stores/user/progress/progress';
 import { useAuthStore } from '@shared/stores/user/user';
 import { ProgressWidget } from '@/widgets/progress/progress';
-import { BodyMeasurementModal } from './body-measurements-modal'
+import { BodyMeasurementModal } from './body-measurements-modal';
 import { BodyMeasurement } from '@shared/stores/user/progress/progress-types';
 
 import { PARAMS } from '@shared/contants/params';
@@ -35,14 +35,22 @@ type ModalType = 'month' | 'year' | 'week' | 'range' | null;
 export const Progress = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [editRecord, setEditRecord] = useState(null);
-    const { user } = useAuthStore()
-    const { measurements, loading, add, update, subscribe, filters, setFilters, resetDateFilters } =
-        useProgressStore();
+    const { user } = useAuthStore();
+    const {
+        measurements,
+        loading,
+        add,
+        update,
+        subscribe,
+        filters,
+        setFilters,
+        resetDateFilters,
+    } = useProgressStore();
 
     useEffect(() => {
         // if (user?.uid) subscribe(user.uid);
         if (user?.id) subscribe(user.id);
-    }, [user, subscribe])
+    }, [user, subscribe]);
 
     const activeParams = useMemo(() => {
         return PARAMS.map((p) => p.key).filter((k) => filters.showParams[k]);
@@ -83,7 +91,9 @@ export const Progress = () => {
         setOpenModalType(null);
     };
 
-    const handleModalSubmit = async (values: Omit<BodyMeasurement, 'id' | 'clientId' | 'createdAt' | 'updatedAt'>) => {
+    const handleModalSubmit = async (
+        values: Omit<BodyMeasurement, 'id' | 'clientId' | 'createdAt' | 'updatedAt'>
+    ) => {
         if (!user?.id) {
             message.error('Пользователь не авторизован');
             return;
@@ -91,23 +101,26 @@ export const Progress = () => {
         if (editRecord?.id) {
             await update(editRecord.id, values);
         } else {
-            await add({ 
-                ...values, 
-                clientId: user.id
+            await add({
+                ...values,
+                clientId: user.id,
             });
         }
-    }
+    };
 
-    const chartData = useMemo(() => measurements.map(m => ({
-        date: m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '',
-        arm: m.arm,
-        chest: m.chest,
-        hips: m.hips,
-        leg: m.leg,
-        waist: m.waist,
-        weight: m.weight,
-    })), [measurements]);
-
+    const chartData = useMemo(
+        () =>
+            measurements.map((m) => ({
+                date: m.createdAt ? new Date(m.createdAt).toLocaleDateString() : '',
+                arm: m.arm,
+                chest: m.chest,
+                hips: m.hips,
+                leg: m.leg,
+                waist: m.waist,
+                weight: m.weight,
+            })),
+        [measurements]
+    );
 
     return (
         <section style={{ padding: 24 }}>
@@ -162,10 +175,12 @@ export const Progress = () => {
                         ))}
                     </Flex>
                     <Flex vertical>
-                            <Flex gap={10} style={{ cursor: 'pointer', color: '#1677ff' }}>
-                                <PlusSquareOutlined />
-                                <Text onClick={() => setModalOpen(true)}>Добавить прогресс</Text>
-                            </Flex>
+                        <Flex gap={10} style={{ cursor: 'pointer', color: '#1677ff' }}>
+                            <PlusSquareOutlined />
+                            <Text onClick={() => setModalOpen(true)}>
+                                Добавить прогресс
+                            </Text>
+                        </Flex>
                         <NavLink to="reports">
                             <Flex gap={10}>
                                 <OrderedListOutlined />
@@ -190,9 +205,12 @@ export const Progress = () => {
                     </Button>
                 </Col>
             </Row>
-            <BodyMeasurementModal 
+            <BodyMeasurementModal
                 open={modalOpen}
-                onClose={() => { setModalOpen(false); setEditRecord(null); }}
+                onClose={() => {
+                    setModalOpen(false);
+                    setEditRecord(null);
+                }}
                 onSubmit={handleModalSubmit}
                 loading={loading}
                 initialValues={editRecord || undefined}
