@@ -45,6 +45,7 @@ export const LoginForm = () => {
                     name: userData.name || '',
                     surname: userData.surname || '',
                     role: role,
+                    trainerId: userData.trainerId,
                 },
                 firebaseUser.refreshToken
             );

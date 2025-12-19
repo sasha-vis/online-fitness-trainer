@@ -9,6 +9,7 @@ export interface User {
     name: string;
     surname: string;
     role: UserRole;
+    trainerId?: string;
 }
 
 interface AuthState {

@@ -8,6 +8,7 @@ export { NutritionDetail } from './client/nutrition-detail/nutrition-detail';
 export { Workouts } from './client/workouts/workouts';
 export { WorkoutDetail } from './client/workout-detail/workout-detail';
 export { Progress } from './client/progress/progress';
+export { ReportsPage } from './client/progress/reports.tsx';
 export { TrainerProfile } from './client/trainer-profile/trainer-profile';
 export { TrainerLibrary } from './trainer/trainer-library/trainer-library';
 export { NutritionTemplates } from './trainer/trainer-library/nutrition-templates/nutrition-templates';
