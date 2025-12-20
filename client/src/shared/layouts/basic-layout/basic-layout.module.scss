@@ -14,13 +14,16 @@
     flex-direction: column;
 }
 
-.footer,
 .header {
-    background-color: #2563eb;
     height: 50px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+.footer,
+.header {
+    background-color: #2563eb;
 }
 
 .footer {
