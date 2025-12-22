@@ -12,6 +12,7 @@ import {
     Card,
     Row,
     Col,
+    type FormInstance,
 } from 'antd';
 import {
     EditOutlined,
@@ -65,7 +66,7 @@ interface Workout {
     name: string;
     description?: string;
     exercises: WorkoutExercise[];
-    dayOfWeek?: number;
+    dayOfWeek?: number | null;
 }
 
 interface Week {
@@ -87,31 +88,62 @@ interface TrainingPlanTemplate {
     updatedAt?: Date;
 }
 
-// Получение уникальных целей из планов
-const getGoalsFromPlans = (plans: TrainingPlanTemplate[]) => {
+interface WeekFormData {
+    weekNumber: number;
+    name?: string;
+    workouts?: WorkoutFormData[];
+}
+
+interface WorkoutFormData {
+    id?: string;
+    name: string;
+    description?: string;
+    dayOfWeek?: number | null;
+    exercises?: WorkoutExercise[];
+}
+
+interface TrainingPlanFormData {
+    name: string;
+    description: string;
+    durationWeeks: number;
+    difficulty: 'Начинающий' | 'Средний' | 'Продвинутый';
+    goal: string;
+    weeks: WeekFormData[];
+}
+
+interface FormListField {
+    key: number;
+    name: number;
+    fieldKey?: number;
+}
+
+interface WorkoutExercisesFormProps {
+    weekIndex: number;
+    workoutIndex: number;
+    form: FormInstance<TrainingPlanFormData>;
+    allExercises: Exercise[];
+    onOpenExerciseModal: (
+        weekIndex: number,
+        workoutIndex: number,
+        form: FormInstance<TrainingPlanFormData>
+    ) => void;
+}
+
+const getGoalsFromPlans = (plans: TrainingPlanTemplate[]): string[] => {
     return Array.from(new Set(plans.map((plan) => plan.goal))).sort();
 };
 
-// Получение уникальных уровней сложности
-const getDifficultiesFromPlans = (plans: TrainingPlanTemplate[]) => {
+const getDifficultiesFromPlans = (plans: TrainingPlanTemplate[]): string[] => {
     return Array.from(new Set(plans.map((plan) => plan.difficulty))).sort();
 };
 
-// Компонент для управления упражнениями в тренировке
 const WorkoutExercisesForm = ({
     weekIndex,
     workoutIndex,
     form,
     onOpenExerciseModal,
-}: {
-    weekIndex: number;
-    workoutIndex: number;
-    form: any;
-    allExercises: Exercise[];
-    onOpenExerciseModal: (weekIndex: number, workoutIndex: number, form: any) => void;
-}) => {
-    // Используем Form.useWatch для отслеживания изменений упражнений
-    const exercises =
+}: WorkoutExercisesFormProps) => {
+    const exercises: WorkoutExercise[] =
         Form.useWatch(
             ['weeks', weekIndex, 'workouts', workoutIndex, 'exercises'],
             form
@@ -128,63 +160,57 @@ const WorkoutExercisesForm = ({
         };
 
         const updatedExercises = [...exercises, newExercise];
-
-        // Получаем текущие значения формы
-        const currentWeeks = form.getFieldValue('weeks') || [];
+        const currentWeeks: WeekFormData[] = form?.getFieldValue('weeks') || [];
         const updatedWeeks = [...currentWeeks];
 
         if (!updatedWeeks[weekIndex]) {
-            updatedWeeks[weekIndex] = { workouts: [] };
+            updatedWeeks[weekIndex] = { weekNumber: weekIndex + 1, workouts: [] };
         }
-        if (!updatedWeeks[weekIndex].workouts[workoutIndex]) {
-            updatedWeeks[weekIndex].workouts[workoutIndex] = {};
+        if (!updatedWeeks[weekIndex].workouts?.[workoutIndex]) {
+            if (!updatedWeeks[weekIndex].workouts) {
+                updatedWeeks[weekIndex].workouts = [];
+            }
+            updatedWeeks[weekIndex].workouts[workoutIndex] = {
+                name: 'Новая тренировка',
+                exercises: [],
+            };
         }
 
         updatedWeeks[weekIndex].workouts[workoutIndex].exercises = updatedExercises;
-
-        form.setFieldsValue({
-            weeks: updatedWeeks,
-        });
+        form?.setFieldsValue({ weeks: updatedWeeks });
     };
 
     const handleRemoveExercise = (exerciseIndex: number) => {
-        const updatedExercises = exercises.filter(
-            (_: any, i: number) => i !== exerciseIndex
-        );
-
-        const currentWeeks = form.getFieldValue('weeks') || [];
+        const updatedExercises = exercises.filter((_, i: number) => i !== exerciseIndex);
+        const currentWeeks: WeekFormData[] = form?.getFieldValue('weeks') || [];
         const updatedWeeks = [...currentWeeks];
 
-        if (updatedWeeks[weekIndex] && updatedWeeks[weekIndex].workouts[workoutIndex]) {
+        if (updatedWeeks[weekIndex]?.workouts?.[workoutIndex]) {
             updatedWeeks[weekIndex].workouts[workoutIndex].exercises = updatedExercises;
         }
 
-        form.setFieldsValue({
-            weeks: updatedWeeks,
-        });
+        form?.setFieldsValue({ weeks: updatedWeeks });
     };
 
     const handleExerciseChange = (
         exerciseIndex: number,
         field: keyof WorkoutExercise,
-        value: any
+        value: string | number
     ) => {
         const updatedExercises = [...exercises];
         updatedExercises[exerciseIndex] = {
             ...updatedExercises[exerciseIndex],
-            [field]: value,
+            [field]: field === 'sets' ? Number(value) : value,
         };
 
-        const currentWeeks = form.getFieldValue('weeks') || [];
+        const currentWeeks: WeekFormData[] = form?.getFieldValue('weeks') || [];
         const updatedWeeks = [...currentWeeks];
 
-        if (updatedWeeks[weekIndex] && updatedWeeks[weekIndex].workouts[workoutIndex]) {
+        if (updatedWeeks[weekIndex]?.workouts?.[workoutIndex]) {
             updatedWeeks[weekIndex].workouts[workoutIndex].exercises = updatedExercises;
         }
 
-        form.setFieldsValue({
-            weeks: updatedWeeks,
-        });
+        form?.setFieldsValue({ weeks: updatedWeeks });
     };
 
     return (
@@ -204,7 +230,7 @@ const WorkoutExercisesForm = ({
                         type="primary"
                         size="small"
                         onClick={(e) => {
-                            e.stopPropagation(); // Важно: предотвращаем всплытие события
+                            e.stopPropagation();
                             onOpenExerciseModal(weekIndex, workoutIndex, form);
                         }}
                         icon={<PlusOutlined />}
@@ -258,7 +284,7 @@ const WorkoutExercisesForm = ({
                                     type="number"
                                     min={1}
                                     max={10}
-                                    value={exercise.sets || ''} // Используем sets из WorkoutExercise
+                                    value={exercise.sets || ''}
                                     onChange={(e) => {
                                         handleExerciseChange(
                                             index,
@@ -270,7 +296,7 @@ const WorkoutExercisesForm = ({
                                     style={{ width: '100px' }}
                                 />
                                 <Input
-                                    value={exercise.reps || ''} // Используем reps из WorkoutExercise
+                                    value={exercise.reps || ''}
                                     onChange={(e) =>
                                         handleExerciseChange(
                                             index,
@@ -312,17 +338,16 @@ export const WorkoutTemplates = () => {
         weekIndex: number;
         workoutIndex: number;
     } | null>(null);
-    const [currentForm, setCurrentForm] = useState<any>(null);
+    const [currentForm, setCurrentForm] = useState<FormInstance | null>(null);
     const [exerciseSearch, setExerciseSearch] = useState('');
     const [selectedMuscleGroup, setSelectedMuscleGroup] = useState<string | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [currentPlan, setCurrentPlan] = useState<TrainingPlanTemplate | null>(null);
-    const [createForm] = Form.useForm();
-    const [editForm] = Form.useForm();
+    const [createForm] = Form.useForm<TrainingPlanFormData>();
+    const [editForm] = Form.useForm<TrainingPlanFormData>();
 
-    // Загрузка шаблонов планов из Firebase
     const fetchPlans = async () => {
         try {
             setLoading(true);
@@ -357,7 +382,6 @@ export const WorkoutTemplates = () => {
         }
     };
 
-    // Загрузка всех упражнений для выбора в тренировках
     const fetchExercises = async () => {
         try {
             const exercisesRef = collection(db, 'exercises');
@@ -387,7 +411,6 @@ export const WorkoutTemplates = () => {
         fetchExercises();
     }, []);
 
-    // Фильтрация упражнений для модалки добавления
     const filteredExercises = useMemo(() => {
         return allExercises.filter((exercise) => {
             const matchesSearch =
@@ -403,12 +426,10 @@ export const WorkoutTemplates = () => {
         });
     }, [allExercises, exerciseSearch, selectedMuscleGroup]);
 
-    // Получение уникальных групп мышц
     const muscleGroups = useMemo(() => {
         return Array.from(new Set(allExercises.map((ex) => ex.muscleGroup))).sort();
     }, [allExercises]);
 
-    // Фильтрация планов
     const filteredPlans = useMemo(() => {
         return plans.filter((plan) => {
             const matchesSearch =
@@ -424,45 +445,44 @@ export const WorkoutTemplates = () => {
         });
     }, [plans, searchText, selectedGoal, selectedDifficulty]);
 
-    // Обработчик аккордеона
     const handleAccordionChange = (keys: string | string[]) => {
         setActiveKeys(Array.isArray(keys) ? keys : [keys]);
     };
 
-    // Открытие модалки добавления упражнений для формы
     const handleOpenExerciseModal = (
         weekIndex: number,
         workoutIndex: number,
-        form: any
+        form: FormInstance<TrainingPlanFormData>
     ) => {
         setCurrentWorkoutContext({ weekIndex, workoutIndex });
         setCurrentForm(form);
         setIsAddExerciseModalOpen(true);
     };
 
-    // Добавление упражнения из базы данных в форму
     const handleAddExerciseFromDB = (exercise: Exercise) => {
         if (!currentWorkoutContext || !currentForm) return;
 
         const { weekIndex, workoutIndex } = currentWorkoutContext;
 
-        // Получаем текущие значения формы
-        const currentWeeks = currentForm.getFieldValue('weeks') || [];
+        const currentWeeks: WeekFormData[] = currentForm.getFieldValue('weeks') || [];
         const updatedWeeks = [...currentWeeks];
 
-        // Создаем структуру если ее нет
         if (!updatedWeeks[weekIndex]) {
-            updatedWeeks[weekIndex] = { workouts: [] };
+            updatedWeeks[weekIndex] = { weekNumber: weekIndex + 1, workouts: [] };
         }
-        if (!updatedWeeks[weekIndex].workouts[workoutIndex]) {
-            updatedWeeks[weekIndex].workouts[workoutIndex] = { exercises: [] };
+        if (!updatedWeeks[weekIndex].workouts?.[workoutIndex]) {
+            if (!updatedWeeks[weekIndex].workouts) {
+                updatedWeeks[weekIndex].workouts = [];
+            }
+            updatedWeeks[weekIndex].workouts[workoutIndex] = {
+                name: 'Новая тренировка',
+                exercises: [],
+            };
         }
 
-        // Получаем текущие упражнения
         const currentExercises =
-            updatedWeeks[weekIndex].workouts[workoutIndex].exercises || [];
+            updatedWeeks[weekIndex].workouts![workoutIndex].exercises || [];
 
-        // Проверяем, не добавлено ли уже это упражнение
         if (
             currentExercises.some((ex: WorkoutExercise) => ex.exerciseId === exercise.id)
         ) {
@@ -470,7 +490,6 @@ export const WorkoutTemplates = () => {
             return;
         }
 
-        // Создаем новое упражнение для тренировки
         const newExercise: WorkoutExercise = {
             exerciseId: exercise.id,
             exerciseTitle: exercise.title,
@@ -480,13 +499,11 @@ export const WorkoutTemplates = () => {
             order: currentExercises.length,
         };
 
-        // Добавляем упражнение
-        updatedWeeks[weekIndex].workouts[workoutIndex].exercises = [
+        updatedWeeks[weekIndex].workouts![workoutIndex].exercises = [
             ...currentExercises,
             newExercise,
         ];
 
-        // Обновляем форму
         currentForm.setFieldsValue({
             weeks: updatedWeeks,
         });
@@ -495,12 +512,13 @@ export const WorkoutTemplates = () => {
         handleCloseExerciseModal();
     };
 
-    // Обновление плана в Firebase
-    const updatePlanInFirebase = async (planId: string, data: any) => {
+    const updatePlanInFirebase = async (
+        planId: string,
+        data: Partial<TrainingPlanTemplate>
+    ) => {
         try {
             const planRef = doc(db, 'trainingPlanTemplates', planId);
 
-            // Очищаем данные перед отправкой
             const cleanData = {
                 ...data,
                 weeks: data.weeks || [],
@@ -511,12 +529,10 @@ export const WorkoutTemplates = () => {
             return true;
         } catch (error) {
             console.error('Ошибка при обновлении плана:', error);
-            console.error('Данные для обновления:', data);
             throw error;
         }
     };
 
-    // Модалки
     const showCreateModal = () => {
         createForm.resetFields();
         createForm.setFieldsValue({
@@ -539,8 +555,7 @@ export const WorkoutTemplates = () => {
     const showEditModal = (plan: TrainingPlanTemplate) => {
         setCurrentPlan(plan);
 
-        // Преобразуем данные для формы
-        const formData = {
+        const formData: TrainingPlanFormData = {
             name: plan.name,
             description: plan.description,
             durationWeeks: plan.durationWeeks,
@@ -548,7 +563,17 @@ export const WorkoutTemplates = () => {
             goal: plan.goal,
             weeks:
                 plan.weeks.length > 0
-                    ? plan.weeks
+                    ? plan.weeks.map((week) => ({
+                          weekNumber: week.weekNumber,
+                          name: week.name,
+                          workouts: week.workouts.map((workout) => ({
+                              id: workout.id,
+                              name: workout.name,
+                              description: workout.description || '',
+                              dayOfWeek: workout.dayOfWeek || null,
+                              exercises: workout.exercises,
+                          })),
+                      }))
                     : [
                           {
                               weekNumber: 1,
@@ -593,8 +618,7 @@ export const WorkoutTemplates = () => {
         setSelectedMuscleGroup(null);
     };
 
-    // Создание плана
-    const handleCreate = async (values: any) => {
+    const handleCreate = async (values: TrainingPlanFormData) => {
         try {
             if (!values.name?.trim()) {
                 message.error('Введите название шаблона');
@@ -613,34 +637,29 @@ export const WorkoutTemplates = () => {
             setSubmitting(true);
             const plansRef = collection(db, 'trainingPlanTemplates');
 
-            // Очищаем данные от undefined и пустых значений
-            const cleanWeeks = (values.weeks || []).map((week: any) => ({
-                weekNumber: Number(week.weekNumber) || 1,
-                name: week.name?.trim() || `Неделя ${week.weekNumber}`,
-                workouts: (week.workouts || []).map((workout: any) => ({
-                    id: workout.id || `workout-${Date.now()}`,
-                    name: workout.name?.trim() || 'Новая тренировка',
+            const cleanWeeks: Week[] = (values.weeks || []).map((week, index) => ({
+                id: `week-${Date.now()}-${index}`,
+                weekNumber: Number(week.weekNumber) || index + 1,
+                name: week.name?.trim() || `Неделя ${week.weekNumber || index + 1}`,
+                workouts: (week.workouts || []).map((workout, workoutIndex) => ({
+                    id: workout.id || `workout-${Date.now()}-${workoutIndex}`,
+                    name: workout.name?.trim() || `Тренировка ${workoutIndex + 1}`,
                     description: workout.description?.trim() || '',
-                    dayOfWeek:
-                        workout.dayOfWeek !== undefined && workout.dayOfWeek !== null
-                            ? Number(workout.dayOfWeek)
-                            : null,
-                    exercises: (workout.exercises || []).map(
-                        (exercise: any, index: number) => ({
-                            exerciseId:
-                                exercise.exerciseId || `exercise-${Date.now()}-${index}`,
-                            exerciseTitle:
-                                exercise.exerciseTitle?.trim() || 'Новое упражнение',
-                            muscleGroup: exercise.muscleGroup?.trim() || 'Грудь',
-                            sets: Number(exercise.sets) || 3,
-                            reps: exercise.reps?.trim() || '8-12',
-                            order: index,
-                        })
-                    ),
+                    dayOfWeek: workout.dayOfWeek ?? null,
+                    exercises: (workout.exercises || []).map((exercise, exIndex) => ({
+                        exerciseId:
+                            exercise.exerciseId || `exercise-${Date.now()}-${exIndex}`,
+                        exerciseTitle:
+                            exercise.exerciseTitle?.trim() || 'Новое упражнение',
+                        muscleGroup: exercise.muscleGroup?.trim() || 'Грудь',
+                        sets: Number(exercise.sets) || 3,
+                        reps: exercise.reps?.trim() || '8-12',
+                        order: exIndex,
+                    })),
                 })),
             }));
 
-            const newPlanData = {
+            const newPlanData: Omit<TrainingPlanTemplate, 'id'> = {
                 name: values.name?.trim() || 'Новый план тренировок',
                 description: values.description?.trim() || 'Описание плана тренировок',
                 durationWeeks: Number(values.durationWeeks) || 4,
@@ -672,41 +691,37 @@ export const WorkoutTemplates = () => {
         }
     };
 
-    // Редактирование плана
-    const handleEdit = async (values: any) => {
+    const handleEdit = async (values: TrainingPlanFormData) => {
         if (!currentPlan) return;
 
         try {
             setSubmitting(true);
 
-            // Очищаем данные от undefined и пустых значений
-            const cleanWeeks = (values.weeks || []).map((week: any) => ({
-                weekNumber: Number(week.weekNumber) || 1,
-                name: week.name?.trim() || `Неделя ${week.weekNumber}`,
-                workouts: (week.workouts || []).map((workout: any) => ({
-                    id: workout.id || `workout-${Date.now()}`,
-                    name: workout.name?.trim() || 'Новая тренировка',
+            const cleanWeeks: Week[] = (values.weeks || []).map((week, index) => ({
+                id: week.weekNumber
+                    ? `week-${week.weekNumber}`
+                    : `week-${Date.now()}-${index}`,
+                weekNumber: Number(week.weekNumber) || index + 1,
+                name: week.name?.trim() || `Неделя ${week.weekNumber || index + 1}`,
+                workouts: (week.workouts || []).map((workout, workoutIndex) => ({
+                    id: workout.id || `workout-${Date.now()}-${workoutIndex}`,
+                    name: workout.name?.trim() || `Тренировка ${workoutIndex + 1}`,
                     description: workout.description?.trim() || '',
-                    dayOfWeek:
-                        workout.dayOfWeek !== undefined && workout.dayOfWeek !== null
-                            ? Number(workout.dayOfWeek)
-                            : null,
-                    exercises: (workout.exercises || []).map(
-                        (exercise: any, index: number) => ({
-                            exerciseId:
-                                exercise.exerciseId || `exercise-${Date.now()}-${index}`,
-                            exerciseTitle:
-                                exercise.exerciseTitle?.trim() || 'Новое упражнение',
-                            muscleGroup: exercise.muscleGroup?.trim() || 'Грудь',
-                            sets: Number(exercise.sets) || 3,
-                            reps: exercise.reps?.trim() || '8-12',
-                            order: index,
-                        })
-                    ),
+                    dayOfWeek: workout.dayOfWeek ?? null,
+                    exercises: (workout.exercises || []).map((exercise, exIndex) => ({
+                        exerciseId:
+                            exercise.exerciseId || `exercise-${Date.now()}-${exIndex}`,
+                        exerciseTitle:
+                            exercise.exerciseTitle?.trim() || 'Новое упражнение',
+                        muscleGroup: exercise.muscleGroup?.trim() || 'Грудь',
+                        sets: Number(exercise.sets) || 3,
+                        reps: exercise.reps?.trim() || '8-12',
+                        order: exIndex,
+                    })),
                 })),
             }));
 
-            const updatedData = {
+            const updatedData: Partial<TrainingPlanTemplate> = {
                 name: values.name?.trim() || 'Новый план тренировок',
                 description: values.description?.trim() || 'Описание плана тренировок',
                 durationWeeks: Number(values.durationWeeks) || 4,
@@ -750,7 +765,6 @@ export const WorkoutTemplates = () => {
         }
     };
 
-    // Удаление плана
     const handleDelete = async () => {
         if (!currentPlan) return;
 
@@ -785,8 +799,7 @@ export const WorkoutTemplates = () => {
         setSelectedDifficulty(null);
     };
 
-    // Вспомогательные функции для дней недели
-    const getDayName = (dayIndex: number) => {
+    const getDayName = (dayIndex: number): string => {
         const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
         return days[dayIndex] || 'Любой';
     };
@@ -814,7 +827,6 @@ export const WorkoutTemplates = () => {
                 </Button>
             </div>
 
-            {/* Фильтры */}
             <div className={styles.filters}>
                 <Space size="middle" wrap>
                     <div className={styles.filterItem}>
@@ -886,7 +898,6 @@ export const WorkoutTemplates = () => {
                 </div>
             </div>
 
-            {/* Аккордеон со списком шаблонов */}
             <div className={styles.accordionContainer}>
                 {filteredPlans.length > 0 ? (
                     <Collapse
@@ -964,7 +975,6 @@ export const WorkoutTemplates = () => {
                                 className={styles.planPanel}
                             >
                                 <div className={styles.panelContent}>
-                                    {/* Описание */}
                                     <div className={styles.descriptionSection}>
                                         <h4 className={styles.sectionTitle}>
                                             <InfoCircleOutlined /> Описание шаблона
@@ -974,7 +984,6 @@ export const WorkoutTemplates = () => {
                                         </p>
                                     </div>
 
-                                    {/* Детали плана */}
                                     <div className={styles.planDetails}>
                                         <Row gutter={[16, 16]}>
                                             <Col span={8}>
@@ -1007,7 +1016,6 @@ export const WorkoutTemplates = () => {
                                         </Row>
                                     </div>
 
-                                    {/* Недели тренировок */}
                                     {plan.weeks && plan.weeks.length > 0 ? (
                                         <div className={styles.weeksSection}>
                                             <h4 className={styles.sectionTitle}>
@@ -1018,7 +1026,10 @@ export const WorkoutTemplates = () => {
                                                 {plan.weeks.map((week, weekIndex) => (
                                                     <Panel
                                                         header={`Неделя ${week.weekNumber}: ${week.name || `Неделя ${week.weekNumber}`}`}
-                                                        key={week.id || weekIndex}
+                                                        key={
+                                                            week.id ||
+                                                            weekIndex.toString()
+                                                        }
                                                     >
                                                         {week.workouts &&
                                                         week.workouts.length > 0 ? (
@@ -1038,7 +1049,7 @@ export const WorkoutTemplates = () => {
                                                                                 workoutIndex
                                                                             }
                                                                             size="small"
-                                                                            title={`${workout.name} ${workout.dayOfWeek !== undefined ? `(${getDayName(workout.dayOfWeek)})` : ''}`}
+                                                                            title={`${workout.name} ${workout.dayOfWeek !== undefined && workout.dayOfWeek !== null ? `(${getDayName(workout.dayOfWeek)})` : ''}`}
                                                                             className={
                                                                                 styles.workoutCard
                                                                             }
@@ -1210,7 +1221,6 @@ export const WorkoutTemplates = () => {
                 )}
             </div>
 
-            {/* Модалка создания шаблона */}
             <Modal
                 title="Создать новый шаблон плана тренировок"
                 open={isCreateModalOpen}
@@ -1231,8 +1241,12 @@ export const WorkoutTemplates = () => {
                 width={800}
                 style={{ maxHeight: '80vh', overflow: 'auto' }}
             >
-                <Form form={createForm} layout="vertical" onFinish={handleCreate}>
-                    <Form.Item
+                <Form<TrainingPlanFormData>
+                    form={createForm}
+                    layout="vertical"
+                    onFinish={handleCreate}
+                >
+                    <Form.Item<TrainingPlanFormData>
                         name="name"
                         label="Название шаблона"
                         rules={[
@@ -1245,7 +1259,7 @@ export const WorkoutTemplates = () => {
                     >
                         <Input placeholder="Например: Базовый план для начинающих" />
                     </Form.Item>
-                    <Form.Item
+                    <Form.Item<TrainingPlanFormData>
                         name="description"
                         label="Описание шаблона"
                         rules={[
@@ -1262,7 +1276,7 @@ export const WorkoutTemplates = () => {
                         />
                     </Form.Item>
                     <div className={styles.formRow}>
-                        <Form.Item
+                        <Form.Item<TrainingPlanFormData>
                             name="durationWeeks"
                             label="Продолжительность (недель)"
                             normalize={(value) => Number(value)}
@@ -1280,7 +1294,7 @@ export const WorkoutTemplates = () => {
                             <Input type="number" min={1} max={52} />
                         </Form.Item>
 
-                        <Form.Item
+                        <Form.Item<TrainingPlanFormData>
                             name="difficulty"
                             label="Уровень сложности"
                             rules={[
@@ -1295,7 +1309,7 @@ export const WorkoutTemplates = () => {
                             </Select>
                         </Form.Item>
 
-                        <Form.Item
+                        <Form.Item<TrainingPlanFormData>
                             name="goal"
                             label="Цель плана"
                             rules={[{ required: true, message: 'Введите цель плана' }]}
@@ -1304,7 +1318,6 @@ export const WorkoutTemplates = () => {
                             <Input placeholder="Например: Набор массы, Похудение, Развитие силы" />
                         </Form.Item>
                     </div>
-                    {/* Динамическая форма для недель */}
                     <Form.List name="weeks">
                         {(fields, { add, remove }) => (
                             <>
@@ -1331,7 +1344,7 @@ export const WorkoutTemplates = () => {
                                     </p>
                                 )}
 
-                                {fields.map((field, weekIndex) => (
+                                {fields.map((field: FormListField, weekIndex: number) => (
                                     <Card
                                         key={field.key}
                                         title={`Неделя ${weekIndex + 1}`}
@@ -1365,7 +1378,6 @@ export const WorkoutTemplates = () => {
                                             />
                                         </Form.Item>
 
-                                        {/* Тренировки для недели */}
                                         <Form.List name={[field.name, 'workouts']}>
                                             {(
                                                 workoutFields,
@@ -1408,7 +1420,10 @@ export const WorkoutTemplates = () => {
                                                     </div>
 
                                                     {workoutFields.map(
-                                                        (workoutField, workoutIndex) => (
+                                                        (
+                                                            workoutField: FormListField,
+                                                            workoutIndex: number
+                                                        ) => (
                                                             <Card
                                                                 key={workoutField.key}
                                                                 size="small"
@@ -1504,7 +1519,6 @@ export const WorkoutTemplates = () => {
                                                                     </Select>
                                                                 </Form.Item>
 
-                                                                {/* Форма для упражнений тренировки */}
                                                                 <WorkoutExercisesForm
                                                                     weekIndex={weekIndex}
                                                                     workoutIndex={
@@ -1532,7 +1546,6 @@ export const WorkoutTemplates = () => {
                 </Form>
             </Modal>
 
-            {/* Модалка редактирования шаблона */}
             <Modal
                 title="Редактировать шаблон плана тренировок"
                 open={isEditModalOpen}
@@ -1554,8 +1567,12 @@ export const WorkoutTemplates = () => {
                 style={{ maxHeight: '80vh', overflow: 'auto' }}
             >
                 {currentPlan && (
-                    <Form form={editForm} layout="vertical" onFinish={handleEdit}>
-                        <Form.Item
+                    <Form<TrainingPlanFormData>
+                        form={editForm}
+                        layout="vertical"
+                        onFinish={handleEdit}
+                    >
+                        <Form.Item<TrainingPlanFormData>
                             name="name"
                             label="Название шаблона"
                             rules={[
@@ -1568,7 +1585,7 @@ export const WorkoutTemplates = () => {
                         >
                             <Input placeholder="Например: Базовый план для начинающих" />
                         </Form.Item>
-                        <Form.Item
+                        <Form.Item<TrainingPlanFormData>
                             name="description"
                             label="Описание шаблона"
                             rules={[
@@ -1585,7 +1602,7 @@ export const WorkoutTemplates = () => {
                             />
                         </Form.Item>
                         <div className={styles.formRow}>
-                            <Form.Item
+                            <Form.Item<TrainingPlanFormData>
                                 name="durationWeeks"
                                 label="Продолжительность (недель)"
                                 normalize={(value) => Number(value)}
@@ -1606,7 +1623,7 @@ export const WorkoutTemplates = () => {
                                 <Input type="number" min={1} max={52} />
                             </Form.Item>
 
-                            <Form.Item
+                            <Form.Item<TrainingPlanFormData>
                                 name="difficulty"
                                 label="Уровень сложности"
                                 rules={[
@@ -1624,7 +1641,7 @@ export const WorkoutTemplates = () => {
                                 </Select>
                             </Form.Item>
 
-                            <Form.Item
+                            <Form.Item<TrainingPlanFormData>
                                 name="goal"
                                 label="Цель плана"
                                 rules={[
@@ -1635,7 +1652,6 @@ export const WorkoutTemplates = () => {
                                 <Input />
                             </Form.Item>
                         </div>
-                        {/* Редактирование недель */}
                         <Form.List name="weeks">
                             {(fields, { add, remove }) => (
                                 <>
@@ -1656,211 +1672,231 @@ export const WorkoutTemplates = () => {
                                         </Button>
                                     </div>
 
-                                    {fields.map((field, weekIndex) => (
-                                        <Card
-                                            key={field.key}
-                                            title={`Неделя ${weekIndex + 1}`}
-                                            size="small"
-                                            className={styles.weekCard}
-                                            extra={
-                                                <MinusCircleOutlined
-                                                    onClick={() => remove(field.name)}
-                                                    style={{ color: '#ff4d4f' }}
-                                                />
-                                            }
-                                        >
-                                            <Form.Item
-                                                {...field}
-                                                name={[field.name, 'weekNumber']}
-                                                fieldKey={[field.key, 'weekNumber']}
-                                                hidden
+                                    {fields.map(
+                                        (field: FormListField, weekIndex: number) => (
+                                            <Card
+                                                key={field.key}
+                                                title={`Неделя ${weekIndex + 1}`}
+                                                size="small"
+                                                className={styles.weekCard}
+                                                extra={
+                                                    <MinusCircleOutlined
+                                                        onClick={() => remove(field.name)}
+                                                        style={{ color: '#ff4d4f' }}
+                                                    />
+                                                }
                                             >
-                                                <Input type="hidden" />
-                                            </Form.Item>
+                                                <Form.Item
+                                                    {...field}
+                                                    name={[field.name, 'weekNumber']}
+                                                    fieldKey={[field.key, 'weekNumber']}
+                                                    hidden
+                                                >
+                                                    <Input type="hidden" />
+                                                </Form.Item>
 
-                                            <Form.Item
-                                                label="Название недели (опционально)"
-                                                name={[field.name, 'name']}
-                                                fieldKey={[field.key, 'name']}
-                                            >
-                                                <Input />
-                                            </Form.Item>
+                                                <Form.Item
+                                                    label="Название недели (опционально)"
+                                                    name={[field.name, 'name']}
+                                                    fieldKey={[field.key, 'name']}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
 
-                                            {/* Тренировки для недели */}
-                                            <Form.List name={[field.name, 'workouts']}>
-                                                {(
-                                                    workoutFields,
-                                                    {
-                                                        add: addWorkout,
-                                                        remove: removeWorkout,
-                                                    }
-                                                ) => (
-                                                    <>
-                                                        <div
-                                                            className={
-                                                                styles.subSectionHeader
-                                                            }
-                                                        >
-                                                            <h5>Тренировки недели</h5>
-                                                            <Button
-                                                                type="dashed"
-                                                                size="small"
-                                                                onClick={() =>
-                                                                    addWorkout({
-                                                                        id: `workout-${Date.now()}`,
-                                                                        name: `Тренировка ${workoutFields.length + 1}`,
-                                                                        exercises: [],
-                                                                    })
-                                                                }
-                                                                icon={
-                                                                    <PlusCircleOutlined />
-                                                                }
-                                                                disabled={
-                                                                    workoutFields.length >=
-                                                                    7
+                                                <Form.List
+                                                    name={[field.name, 'workouts']}
+                                                >
+                                                    {(
+                                                        workoutFields,
+                                                        {
+                                                            add: addWorkout,
+                                                            remove: removeWorkout,
+                                                        }
+                                                    ) => (
+                                                        <>
+                                                            <div
+                                                                className={
+                                                                    styles.subSectionHeader
                                                                 }
                                                             >
-                                                                Добавить тренировку
-                                                            </Button>
-                                                        </div>
-
-                                                        {workoutFields.map(
-                                                            (
-                                                                workoutField,
-                                                                workoutIndex
-                                                            ) => (
-                                                                <Card
-                                                                    key={workoutField.key}
+                                                                <h5>Тренировки недели</h5>
+                                                                <Button
+                                                                    type="dashed"
                                                                     size="small"
-                                                                    title={`Тренировка ${workoutIndex + 1}`}
-                                                                    className={
-                                                                        styles.workoutFormCard
+                                                                    onClick={() =>
+                                                                        addWorkout({
+                                                                            id: `workout-${Date.now()}`,
+                                                                            name: `Тренировка ${workoutFields.length + 1}`,
+                                                                            exercises: [],
+                                                                        })
                                                                     }
-                                                                    extra={
-                                                                        <MinusCircleOutlined
-                                                                            onClick={() =>
-                                                                                removeWorkout(
-                                                                                    workoutField.name
-                                                                                )
-                                                                            }
-                                                                            style={{
-                                                                                color: '#ff4d4f',
-                                                                            }}
-                                                                        />
+                                                                    icon={
+                                                                        <PlusCircleOutlined />
+                                                                    }
+                                                                    disabled={
+                                                                        workoutFields.length >=
+                                                                        7
                                                                     }
                                                                 >
-                                                                    <Form.Item
-                                                                        {...workoutField}
-                                                                        label="Название тренировки"
-                                                                        name={[
-                                                                            workoutField.name,
-                                                                            'name',
-                                                                        ]}
-                                                                        fieldKey={[
-                                                                            workoutField.key,
-                                                                            'name',
-                                                                        ]}
-                                                                        rules={[
-                                                                            {
-                                                                                required: true,
-                                                                                message:
-                                                                                    'Введите название тренировки',
-                                                                            },
-                                                                        ]}
-                                                                    >
-                                                                        <Input />
-                                                                    </Form.Item>
+                                                                    Добавить тренировку
+                                                                </Button>
+                                                            </div>
 
-                                                                    <Form.Item
-                                                                        label="Описание (опционально)"
-                                                                        name={[
-                                                                            workoutField.name,
-                                                                            'description',
-                                                                        ]}
-                                                                        fieldKey={[
-                                                                            workoutField.key,
-                                                                            'description',
-                                                                        ]}
+                                                            {workoutFields.map(
+                                                                (
+                                                                    workoutField: FormListField,
+                                                                    workoutIndex: number
+                                                                ) => (
+                                                                    <Card
+                                                                        key={
+                                                                            workoutField.key
+                                                                        }
+                                                                        size="small"
+                                                                        title={`Тренировка ${workoutIndex + 1}`}
+                                                                        className={
+                                                                            styles.workoutFormCard
+                                                                        }
+                                                                        extra={
+                                                                            <MinusCircleOutlined
+                                                                                onClick={() =>
+                                                                                    removeWorkout(
+                                                                                        workoutField.name
+                                                                                    )
+                                                                                }
+                                                                                style={{
+                                                                                    color: '#ff4d4f',
+                                                                                }}
+                                                                            />
+                                                                        }
                                                                     >
-                                                                        <TextArea
-                                                                            rows={2}
+                                                                        <Form.Item
+                                                                            {...workoutField}
+                                                                            label="Название тренировки"
+                                                                            name={[
+                                                                                workoutField.name,
+                                                                                'name',
+                                                                            ]}
+                                                                            fieldKey={[
+                                                                                workoutField.key,
+                                                                                'name',
+                                                                            ]}
+                                                                            rules={[
+                                                                                {
+                                                                                    required: true,
+                                                                                    message:
+                                                                                        'Введите название тренировки',
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            <Input />
+                                                                        </Form.Item>
+
+                                                                        <Form.Item
+                                                                            label="Описание (опционально)"
+                                                                            name={[
+                                                                                workoutField.name,
+                                                                                'description',
+                                                                            ]}
+                                                                            fieldKey={[
+                                                                                workoutField.key,
+                                                                                'description',
+                                                                            ]}
+                                                                        >
+                                                                            <TextArea
+                                                                                rows={2}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        <Form.Item
+                                                                            label="День недели (опционально)"
+                                                                            name={[
+                                                                                workoutField.name,
+                                                                                'dayOfWeek',
+                                                                            ]}
+                                                                            fieldKey={[
+                                                                                workoutField.key,
+                                                                                'dayOfWeek',
+                                                                            ]}
+                                                                        >
+                                                                            <Select>
+                                                                                <Option
+                                                                                    value={
+                                                                                        0
+                                                                                    }
+                                                                                >
+                                                                                    Понедельник
+                                                                                </Option>
+                                                                                <Option
+                                                                                    value={
+                                                                                        1
+                                                                                    }
+                                                                                >
+                                                                                    Вторник
+                                                                                </Option>
+                                                                                <Option
+                                                                                    value={
+                                                                                        2
+                                                                                    }
+                                                                                >
+                                                                                    Среда
+                                                                                </Option>
+                                                                                <Option
+                                                                                    value={
+                                                                                        3
+                                                                                    }
+                                                                                >
+                                                                                    Четверг
+                                                                                </Option>
+                                                                                <Option
+                                                                                    value={
+                                                                                        4
+                                                                                    }
+                                                                                >
+                                                                                    Пятница
+                                                                                </Option>
+                                                                                <Option
+                                                                                    value={
+                                                                                        5
+                                                                                    }
+                                                                                >
+                                                                                    Суббота
+                                                                                </Option>
+                                                                                <Option
+                                                                                    value={
+                                                                                        6
+                                                                                    }
+                                                                                >
+                                                                                    Воскресенье
+                                                                                </Option>
+                                                                            </Select>
+                                                                        </Form.Item>
+
+                                                                        <WorkoutExercisesForm
+                                                                            weekIndex={
+                                                                                weekIndex
+                                                                            }
+                                                                            workoutIndex={
+                                                                                workoutIndex
+                                                                            }
+                                                                            form={
+                                                                                editForm
+                                                                            }
+                                                                            allExercises={
+                                                                                allExercises
+                                                                            }
+                                                                            onOpenExerciseModal={
+                                                                                handleOpenExerciseModal
+                                                                            }
                                                                         />
-                                                                    </Form.Item>
-
-                                                                    <Form.Item
-                                                                        label="День недели (опционально)"
-                                                                        name={[
-                                                                            workoutField.name,
-                                                                            'dayOfWeek',
-                                                                        ]}
-                                                                        fieldKey={[
-                                                                            workoutField.key,
-                                                                            'dayOfWeek',
-                                                                        ]}
-                                                                    >
-                                                                        <Select>
-                                                                            <Option
-                                                                                value={0}
-                                                                            >
-                                                                                Понедельник
-                                                                            </Option>
-                                                                            <Option
-                                                                                value={1}
-                                                                            >
-                                                                                Вторник
-                                                                            </Option>
-                                                                            <Option
-                                                                                value={2}
-                                                                            >
-                                                                                Среда
-                                                                            </Option>
-                                                                            <Option
-                                                                                value={3}
-                                                                            >
-                                                                                Четверг
-                                                                            </Option>
-                                                                            <Option
-                                                                                value={4}
-                                                                            >
-                                                                                Пятница
-                                                                            </Option>
-                                                                            <Option
-                                                                                value={5}
-                                                                            >
-                                                                                Суббота
-                                                                            </Option>
-                                                                            <Option
-                                                                                value={6}
-                                                                            >
-                                                                                Воскресенье
-                                                                            </Option>
-                                                                        </Select>
-                                                                    </Form.Item>
-
-                                                                    {/* Форма для упражнений тренировки */}
-                                                                    <WorkoutExercisesForm
-                                                                        weekIndex={
-                                                                            weekIndex
-                                                                        }
-                                                                        workoutIndex={
-                                                                            workoutIndex
-                                                                        }
-                                                                        form={editForm}
-                                                                        allExercises={
-                                                                            allExercises
-                                                                        }
-                                                                        onOpenExerciseModal={
-                                                                            handleOpenExerciseModal
-                                                                        }
-                                                                    />
-                                                                </Card>
-                                                            )
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Form.List>
-                                        </Card>
-                                    ))}
+                                                                    </Card>
+                                                                )
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </Form.List>
+                                            </Card>
+                                        )
+                                    )}
                                 </>
                             )}
                         </Form.List>
@@ -1868,7 +1904,6 @@ export const WorkoutTemplates = () => {
                 )}
             </Modal>
 
-            {/* Модалка удаления шаблона */}
             <Modal
                 title="Удалить шаблон плана тренировок"
                 open={isDeleteModalOpen}
@@ -1903,7 +1938,6 @@ export const WorkoutTemplates = () => {
                 )}
             </Modal>
 
-            {/* Модалка добавления упражнений из базы данных */}
             <Modal
                 title="Выбрать упражнение из базы данных"
                 open={isAddExerciseModalOpen}
@@ -1914,7 +1948,6 @@ export const WorkoutTemplates = () => {
                 maskClosable={false}
             >
                 <div className={styles.exerciseModalContent}>
-                    {/* Фильтры упражнений */}
                     <div className={styles.exerciseFilters}>
                         <Space size="middle" wrap>
                             <div className={styles.filterItem}>
@@ -1948,7 +1981,6 @@ export const WorkoutTemplates = () => {
                         </Space>
                     </div>
 
-                    {/* Список упражнений */}
                     <div className={styles.exercisesListModal}>
                         {filteredExercises.length > 0 ? (
                             <Row gutter={[16, 16]}>

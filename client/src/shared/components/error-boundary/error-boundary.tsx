@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { Component, type ReactNode } from 'react';
 import { ErrorMessage } from '../error-message/error-message';
 

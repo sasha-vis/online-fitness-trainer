@@ -79,12 +79,6 @@ export const TrainerProfile = () => {
             <div style={{ width: 600, margin: '0 auto', padding: '24px' }}>
                 <Title level={2}>Мой тренер</Title>
                 <Card>
-                    <Alert
-                        message="Тренер не назначен"
-                        description="В настоящее время у вас нет назначенного тренера. Ожидайте, пока администратор назначит вам тренера, или обратитесь в поддержку."
-                        type="info"
-                        showIcon
-                    />
                     <div style={{ marginTop: 16 }}>
                         <Paragraph type="secondary">
                             После назначения тренера здесь появится его контактная

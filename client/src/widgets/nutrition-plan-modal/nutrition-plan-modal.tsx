@@ -29,7 +29,6 @@ export const NutritionPlanModal = ({ visible, onClose, onSelect }) => {
             try {
                 setLoading(true);
 
-                // 1. Проверяем, есть ли текущее назначение
                 const assignmentsRef = collection(db, 'clientNutritionAssignments');
                 const assignmentQuery = query(
                     assignmentsRef,
@@ -46,7 +45,6 @@ export const NutritionPlanModal = ({ visible, onClose, onSelect }) => {
                     setCurrentTemplateId(null);
                 }
 
-                // 2. Загружаем все шаблоны
                 const plansRef = collection(db, 'nutritionPlanTemplates');
                 const snapshot = await getDocs(plansRef);
                 const plansData = snapshot.docs.map((doc) => ({
@@ -74,7 +72,6 @@ export const NutritionPlanModal = ({ visible, onClose, onSelect }) => {
         try {
             setAssigning(true);
 
-            // 1. Удаляем старое назначение, если оно есть
             if (currentAssignmentId) {
                 const oldAssignmentRef = doc(
                     db,
@@ -84,7 +81,6 @@ export const NutritionPlanModal = ({ visible, onClose, onSelect }) => {
                 await deleteDoc(oldAssignmentRef);
             }
 
-            // 2. Добавляем новое назначение
             const assignmentRef = collection(db, 'clientNutritionAssignments');
             await addDoc(assignmentRef, {
                 clientId: clientId,
@@ -95,7 +91,6 @@ export const NutritionPlanModal = ({ visible, onClose, onSelect }) => {
                 status: 'active',
             });
 
-            // 3. Сообщаем родительскому компоненту
             onSelect(plan);
 
             message.success('План питания назначен клиенту');

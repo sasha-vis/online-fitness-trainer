@@ -20,7 +20,7 @@ export const WorkoutPlanModal = ({ visible, onClose, onSelect }) => {
     const [loading, setLoading] = useState(false);
     const [assigning, setAssigning] = useState(false);
     const [currentAssignmentId, setCurrentAssignmentId] = useState(null);
-    const [currentTemplateId, setCurrentTemplateId] = useState(null); // Добавляем для отслеживания текущего шаблона
+    const [currentTemplateId, setCurrentTemplateId] = useState(null);
 
     useEffect(() => {
         const fetchPlans = async () => {
@@ -29,7 +29,6 @@ export const WorkoutPlanModal = ({ visible, onClose, onSelect }) => {
             try {
                 setLoading(true);
 
-                // 1. Проверяем, есть ли текущее назначение
                 const assignmentsRef = collection(db, 'clientTrainingAssignments');
                 const assignmentQuery = query(
                     assignmentsRef,
@@ -40,13 +39,12 @@ export const WorkoutPlanModal = ({ visible, onClose, onSelect }) => {
                 if (!assignmentSnapshot.empty) {
                     const assignment = assignmentSnapshot.docs[0];
                     setCurrentAssignmentId(assignment.id);
-                    setCurrentTemplateId(assignment.data().templateId); // Сохраняем ID текущего шаблона
+                    setCurrentTemplateId(assignment.data().templateId);
                 } else {
                     setCurrentAssignmentId(null);
                     setCurrentTemplateId(null);
                 }
 
-                // 2. Загружаем все шаблоны
                 const plansRef = collection(db, 'trainingPlanTemplates');
                 const snapshot = await getDocs(plansRef);
                 const plansData = snapshot.docs.map((doc) => ({
@@ -74,7 +72,6 @@ export const WorkoutPlanModal = ({ visible, onClose, onSelect }) => {
         try {
             setAssigning(true);
 
-            // 1. Удаляем старое назначение, если оно есть
             if (currentAssignmentId) {
                 const oldAssignmentRef = doc(
                     db,
@@ -84,7 +81,6 @@ export const WorkoutPlanModal = ({ visible, onClose, onSelect }) => {
                 await deleteDoc(oldAssignmentRef);
             }
 
-            // 2. Добавляем новое назначение
             const assignmentRef = collection(db, 'clientTrainingAssignments');
             await addDoc(assignmentRef, {
                 clientId: clientId,
@@ -96,7 +92,6 @@ export const WorkoutPlanModal = ({ visible, onClose, onSelect }) => {
                 previousAssignmentId: currentAssignmentId,
             });
 
-            // 3. Сообщаем родительскому компоненту
             onSelect(plan);
 
             message.success('План тренировок назначен клиенту');

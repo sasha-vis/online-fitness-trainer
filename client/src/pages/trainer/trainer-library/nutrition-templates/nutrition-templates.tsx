@@ -12,6 +12,7 @@ import {
     Card,
     Row,
     Col,
+    FormInstance,
 } from 'antd';
 import {
     EditOutlined,
@@ -71,7 +72,7 @@ interface Meal {
     name: string;
     description?: string;
     dishes: MealDish[];
-    timeOfDay?: string;
+    timeOfDay?: string | null;
 }
 
 interface Day {
@@ -93,31 +94,62 @@ interface NutritionPlanTemplate {
     updatedAt?: Date;
 }
 
-// Получение уникальных целей из планов
+interface DayFormData {
+    dayNumber: number;
+    name?: string;
+    meals?: MealFormData[];
+}
+
+interface MealFormData {
+    id?: string;
+    name: string;
+    description?: string;
+    timeOfDay?: string | null;
+    dishes?: MealDish[];
+}
+
+interface NutritionPlanFormData {
+    name: string;
+    description: string;
+    durationDays: number;
+    difficulty: 'Начинающий' | 'Средний' | 'Продвинутый';
+    goal: string;
+    days: DayFormData[];
+}
+
+interface FormListField {
+    key: number;
+    name: number;
+    fieldKey?: number;
+}
+
+interface MealDishesFormProps {
+    dayIndex: number;
+    mealIndex: number;
+    form: FormInstance<NutritionPlanFormData>;
+    allDishes: Dish[];
+    onOpenDishModal: (
+        dayIndex: number,
+        mealIndex: number,
+        form: FormInstance<NutritionPlanFormData>
+    ) => void;
+}
+
 const getGoalsFromPlans = (plans: NutritionPlanTemplate[]) => {
     return Array.from(new Set(plans.map((plan) => plan.goal))).sort();
 };
 
-// Получение уникальных уровней сложности
 const getDifficultiesFromPlans = (plans: NutritionPlanTemplate[]) => {
     return Array.from(new Set(plans.map((plan) => plan.difficulty))).sort();
 };
 
-// Компонент для управления блюдами в приеме пищи
 const MealDishesForm = ({
     dayIndex,
     mealIndex,
     form,
     onOpenDishModal,
-}: {
-    dayIndex: number;
-    mealIndex: number;
-    form: any;
-    allDishes: Dish[];
-    onOpenDishModal: (dayIndex: number, mealIndex: number, form: any) => void;
-}) => {
-    // Используем Form.useWatch для отслеживания изменений блюд
-    const dishes =
+}: MealDishesFormProps) => {
+    const dishes: MealDish[] =
         Form.useWatch(['days', dayIndex, 'meals', mealIndex, 'dishes'], form) || [];
 
     const handleAddDish = () => {
@@ -134,57 +166,63 @@ const MealDishesForm = ({
         };
 
         const updatedDishes = [...dishes, newDish];
-
-        // Получаем текущие значения формы
-        const currentDays = form.getFieldValue('days') || [];
+        const currentDays: DayFormData[] = form.getFieldValue('days') || [];
         const updatedDays = [...currentDays];
 
         if (!updatedDays[dayIndex]) {
-            updatedDays[dayIndex] = { meals: [] };
+            updatedDays[dayIndex] = { dayNumber: dayIndex + 1, meals: [] };
         }
-        if (!updatedDays[dayIndex].meals[mealIndex]) {
-            updatedDays[dayIndex].meals[mealIndex] = {};
+        if (!updatedDays[dayIndex].meals?.[mealIndex]) {
+            if (!updatedDays[dayIndex].meals) {
+                updatedDays[dayIndex].meals = [];
+            }
+            updatedDays[dayIndex].meals[mealIndex] = {
+                name: 'Новый прием пищи',
+                dishes: [],
+            };
         }
 
-        updatedDays[dayIndex].meals[mealIndex].dishes = updatedDishes;
-
-        form.setFieldsValue({
-            days: updatedDays,
-        });
+        updatedDays[dayIndex].meals![mealIndex].dishes = updatedDishes;
+        form.setFieldsValue({ days: updatedDays });
     };
 
     const handleRemoveDish = (dishIndex: number) => {
-        const updatedDishes = dishes.filter((_: any, i: number) => i !== dishIndex);
-
-        const currentDays = form.getFieldValue('days') || [];
+        const updatedDishes = dishes.filter((_, i: number) => i !== dishIndex);
+        const currentDays: DayFormData[] = form.getFieldValue('days') || [];
         const updatedDays = [...currentDays];
 
-        if (updatedDays[dayIndex] && updatedDays[dayIndex].meals[mealIndex]) {
-            updatedDays[dayIndex].meals[mealIndex].dishes = updatedDishes;
+        if (updatedDays[dayIndex]?.meals?.[mealIndex]) {
+            updatedDays[dayIndex].meals![mealIndex].dishes = updatedDishes;
         }
 
-        form.setFieldsValue({
-            days: updatedDays,
-        });
+        form.setFieldsValue({ days: updatedDays });
     };
 
-    const handleDishChange = (dishIndex: number, field: keyof MealDish, value: any) => {
+    const handleDishChange = (
+        dishIndex: number,
+        field: keyof MealDish,
+        value: string | number
+    ) => {
         const updatedDishes = [...dishes];
         updatedDishes[dishIndex] = {
             ...updatedDishes[dishIndex],
-            [field]: value,
+            [field]:
+                field === 'calories' ||
+                field === 'protein' ||
+                field === 'carbs' ||
+                field === 'fat'
+                    ? Number(value)
+                    : value,
         };
 
-        const currentDays = form.getFieldValue('days') || [];
+        const currentDays: DayFormData[] = form.getFieldValue('days') || [];
         const updatedDays = [...currentDays];
 
-        if (updatedDays[dayIndex] && updatedDays[dayIndex].meals[mealIndex]) {
-            updatedDays[dayIndex].meals[mealIndex].dishes = updatedDishes;
+        if (updatedDays[dayIndex]?.meals?.[mealIndex]) {
+            updatedDays[dayIndex].meals![mealIndex].dishes = updatedDishes;
         }
 
-        form.setFieldsValue({
-            days: updatedDays,
-        });
+        form.setFieldsValue({ days: updatedDays });
     };
 
     return (
@@ -306,17 +344,17 @@ export const NutritionTemplates = () => {
         dayIndex: number;
         mealIndex: number;
     } | null>(null);
-    const [currentForm, setCurrentForm] = useState<any>(null);
+    const [currentForm, setCurrentForm] =
+        useState<FormInstance<NutritionPlanFormData> | null>(null);
     const [dishSearch, setDishSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [currentPlan, setCurrentPlan] = useState<NutritionPlanTemplate | null>(null);
-    const [createForm] = Form.useForm();
-    const [editForm] = Form.useForm();
+    const [createForm] = Form.useForm<NutritionPlanFormData>();
+    const [editForm] = Form.useForm<NutritionPlanFormData>();
 
-    // Загрузка шаблонов планов из Firebase
     const fetchPlans = async () => {
         try {
             setLoading(true);
@@ -351,11 +389,10 @@ export const NutritionTemplates = () => {
         }
     };
 
-    // Загрузка всех блюд для выбора в планах
     const fetchDishes = async () => {
         try {
             const dishesRef = collection(db, 'meals');
-            const q = query(dishesRef, orderBy('name')); // Изменил orderBy на 'name'
+            const q = query(dishesRef, orderBy('name'));
             const querySnapshot = await getDocs(q);
 
             const dishesData: Dish[] = [];
@@ -363,7 +400,7 @@ export const NutritionTemplates = () => {
                 const data = doc.data();
                 dishesData.push({
                     id: doc.id,
-                    name: data.name || '', // Изменил с dish.title на data.name
+                    name: data.name || '',
                     category: data.category || 'Основное',
                     description: data.description || '',
                     calories: data.calories || 0,
@@ -384,12 +421,11 @@ export const NutritionTemplates = () => {
         fetchDishes();
     }, []);
 
-    // Фильтрация блюд для модалки добавления
     const filteredDishes = useMemo(() => {
         return allDishes.filter((dish) => {
             const matchesSearch =
                 dishSearch === '' ||
-                dish.name.toLowerCase().includes(dishSearch.toLowerCase()) || // Изменил с dish.title
+                dish.name.toLowerCase().includes(dishSearch.toLowerCase()) ||
                 dish.category.toLowerCase().includes(dishSearch.toLowerCase());
 
             const matchesCategory =
@@ -399,12 +435,10 @@ export const NutritionTemplates = () => {
         });
     }, [allDishes, dishSearch, selectedCategory]);
 
-    // Получение уникальных категорий
     const categories = useMemo(() => {
         return Array.from(new Set(allDishes.map((dish) => dish.category))).sort();
     }, [allDishes]);
 
-    // Фильтрация планов
     const filteredPlans = useMemo(() => {
         return plans.filter((plan) => {
             const matchesSearch =
@@ -420,49 +454,51 @@ export const NutritionTemplates = () => {
         });
     }, [plans, searchText, selectedGoal, selectedDifficulty]);
 
-    // Обработчик аккордеона
     const handleAccordionChange = (keys: string | string[]) => {
         setActiveKeys(Array.isArray(keys) ? keys : [keys]);
     };
 
-    // Открытие модалки добавления блюд для формы
-    const handleOpenDishModal = (dayIndex: number, mealIndex: number, form: any) => {
+    const handleOpenDishModal = (
+        dayIndex: number,
+        mealIndex: number,
+        form: FormInstance<NutritionPlanFormData>
+    ) => {
         setCurrentMealContext({ dayIndex, mealIndex });
         setCurrentForm(form);
         setIsAddDishModalOpen(true);
     };
 
-    // Добавление блюда из базы данных в форму
     const handleAddDishFromDB = (dish: Dish) => {
         if (!currentMealContext || !currentForm) return;
 
         const { dayIndex, mealIndex } = currentMealContext;
 
-        // Получаем текущие значения формы
-        const currentDays = currentForm.getFieldValue('days') || [];
+        const currentDays: DayFormData[] = currentForm.getFieldValue('days') || [];
         const updatedDays = [...currentDays];
 
-        // Создаем структуру если ее нет
         if (!updatedDays[dayIndex]) {
-            updatedDays[dayIndex] = { meals: [] };
+            updatedDays[dayIndex] = { dayNumber: dayIndex + 1, meals: [] };
         }
-        if (!updatedDays[dayIndex].meals[mealIndex]) {
-            updatedDays[dayIndex].meals[mealIndex] = { dishes: [] };
+        if (!updatedDays[dayIndex].meals?.[mealIndex]) {
+            if (!updatedDays[dayIndex].meals) {
+                updatedDays[dayIndex].meals = [];
+            }
+            updatedDays[dayIndex].meals[mealIndex] = {
+                name: 'Новый прием пищи',
+                dishes: [],
+            };
         }
 
-        // Получаем текущие блюда
-        const currentDishes = updatedDays[dayIndex].meals[mealIndex].dishes || [];
+        const currentDishes = updatedDays[dayIndex].meals![mealIndex].dishes || [];
 
-        // Проверяем, не добавлено ли уже это блюдо
         if (currentDishes.some((d: MealDish) => d.dishId === dish.id)) {
             message.warning('Это блюдо уже добавлено в прием пищи');
             return;
         }
 
-        // Создаем новое блюдо для приема пищи
         const newDish: MealDish = {
             dishId: dish.id,
-            dishTitle: dish.name, // Изменил с dish.title
+            dishTitle: dish.name,
             category: dish.category || 'Основное',
             portion: '1 порция',
             calories: dish.calories || 0,
@@ -472,10 +508,8 @@ export const NutritionTemplates = () => {
             order: currentDishes.length,
         };
 
-        // Добавляем блюдо
-        updatedDays[dayIndex].meals[mealIndex].dishes = [...currentDishes, newDish];
+        updatedDays[dayIndex].meals![mealIndex].dishes = [...currentDishes, newDish];
 
-        // Обновляем форму
         currentForm.setFieldsValue({
             days: updatedDays,
         });
@@ -484,12 +518,13 @@ export const NutritionTemplates = () => {
         handleCloseDishModal();
     };
 
-    // Обновление плана в Firebase
-    const updatePlanInFirebase = async (planId: string, data: any) => {
+    const updatePlanInFirebase = async (
+        planId: string,
+        data: Partial<NutritionPlanTemplate>
+    ) => {
         try {
             const planRef = doc(db, 'nutritionPlanTemplates', planId);
 
-            // Очищаем данные перед отправкой
             const cleanData = {
                 ...data,
                 days: data.days || [],
@@ -500,12 +535,10 @@ export const NutritionTemplates = () => {
             return true;
         } catch (error) {
             console.error('Ошибка при обновлении плана питания:', error);
-            console.error('Данные для обновления:', data);
             throw error;
         }
     };
 
-    // Модалки
     const showCreateModal = () => {
         createForm.resetFields();
         createForm.setFieldsValue({
@@ -528,8 +561,7 @@ export const NutritionTemplates = () => {
     const showEditModal = (plan: NutritionPlanTemplate) => {
         setCurrentPlan(plan);
 
-        // Преобразуем данные для формы
-        const formData = {
+        const formData: NutritionPlanFormData = {
             name: plan.name,
             description: plan.description,
             durationDays: plan.durationDays,
@@ -537,7 +569,17 @@ export const NutritionTemplates = () => {
             goal: plan.goal,
             days:
                 plan.days.length > 0
-                    ? plan.days
+                    ? plan.days.map((day) => ({
+                          dayNumber: day.dayNumber,
+                          name: day.name,
+                          meals: day.meals.map((meal) => ({
+                              id: meal.id,
+                              name: meal.name,
+                              description: meal.description || '',
+                              timeOfDay: meal.timeOfDay || null,
+                              dishes: meal.dishes,
+                          })),
+                      }))
                     : [
                           {
                               dayNumber: 1,
@@ -582,8 +624,7 @@ export const NutritionTemplates = () => {
         setSelectedCategory(null);
     };
 
-    // Создание плана
-    const handleCreate = async (values: any) => {
+    const handleCreate = async (values: NutritionPlanFormData) => {
         try {
             if (!values.name?.trim()) {
                 message.error('Введите название шаблона');
@@ -602,20 +643,17 @@ export const NutritionTemplates = () => {
             setSubmitting(true);
             const plansRef = collection(db, 'nutritionPlanTemplates');
 
-            // Очищаем данные от undefined и пустых значений
-            const cleanDays = (values.days || []).map((day: any) => ({
-                dayNumber: Number(day.dayNumber) || 1,
-                name: day.name?.trim() || `День ${day.dayNumber}`,
-                meals: (day.meals || []).map((meal: any) => ({
-                    id: meal.id || `meal-${Date.now()}`,
-                    name: meal.name?.trim() || 'Новый прием пищи',
+            const cleanDays: Day[] = (values.days || []).map((day, index) => ({
+                id: `day-${Date.now()}-${index}`,
+                dayNumber: Number(day.dayNumber) || index + 1,
+                name: day.name?.trim() || `День ${day.dayNumber || index + 1}`,
+                meals: (day.meals || []).map((meal, mealIndex) => ({
+                    id: meal.id || `meal-${Date.now()}-${mealIndex}`,
+                    name: meal.name?.trim() || `Прием пищи ${mealIndex + 1}`,
                     description: meal.description?.trim() || '',
-                    timeOfDay:
-                        meal.timeOfDay !== undefined && meal.timeOfDay !== null
-                            ? String(meal.timeOfDay)
-                            : null,
-                    dishes: (meal.dishes || []).map((dish: any, index: number) => ({
-                        dishId: dish.dishId || `dish-${Date.now()}-${index}`,
+                    timeOfDay: meal.timeOfDay ?? null,
+                    dishes: (meal.dishes || []).map((dish, dishIndex) => ({
+                        dishId: dish.dishId || `dish-${Date.now()}-${dishIndex}`,
                         dishTitle: dish.dishTitle?.trim() || 'Новое блюдо',
                         category: dish.category?.trim() || 'Основное',
                         portion: dish.portion?.trim() || '1 порция',
@@ -623,12 +661,12 @@ export const NutritionTemplates = () => {
                         protein: Number(dish.protein) || 0,
                         carbs: Number(dish.carbs) || 0,
                         fat: Number(dish.fat) || 0,
-                        order: index,
+                        order: dishIndex,
                     })),
                 })),
             }));
 
-            const newPlanData = {
+            const newPlanData: Omit<NutritionPlanTemplate, 'id'> = {
                 name: values.name?.trim() || 'Новый план питания',
                 description: values.description?.trim() || 'Описание плана питания',
                 durationDays: Number(values.durationDays) || 7,
@@ -660,27 +698,23 @@ export const NutritionTemplates = () => {
         }
     };
 
-    // Редактирование плана
-    const handleEdit = async (values: any) => {
+    const handleEdit = async (values: NutritionPlanFormData) => {
         if (!currentPlan) return;
 
         try {
             setSubmitting(true);
 
-            // Очищаем данные от undefined и пустых значений
-            const cleanDays = (values.days || []).map((day: any) => ({
-                dayNumber: Number(day.dayNumber) || 1,
-                name: day.name?.trim() || `День ${day.dayNumber}`,
-                meals: (day.meals || []).map((meal: any) => ({
-                    id: meal.id || `meal-${Date.now()}`,
-                    name: meal.name?.trim() || 'Новый прием пищи',
+            const cleanDays: Day[] = (values.days || []).map((day, index) => ({
+                id: day.dayNumber ? `day-${day.dayNumber}` : `day-${Date.now()}-${index}`,
+                dayNumber: Number(day.dayNumber) || index + 1,
+                name: day.name?.trim() || `День ${day.dayNumber || index + 1}`,
+                meals: (day.meals || []).map((meal, mealIndex) => ({
+                    id: meal.id || `meal-${Date.now()}-${mealIndex}`,
+                    name: meal.name?.trim() || `Прием пищи ${mealIndex + 1}`,
                     description: meal.description?.trim() || '',
-                    timeOfDay:
-                        meal.timeOfDay !== undefined && meal.timeOfDay !== null
-                            ? String(meal.timeOfDay)
-                            : null,
-                    dishes: (meal.dishes || []).map((dish: any, index: number) => ({
-                        dishId: dish.dishId || `dish-${Date.now()}-${index}`,
+                    timeOfDay: meal.timeOfDay ?? null,
+                    dishes: (meal.dishes || []).map((dish, dishIndex) => ({
+                        dishId: dish.dishId || `dish-${Date.now()}-${dishIndex}`,
                         dishTitle: dish.dishTitle?.trim() || 'Новое блюдо',
                         category: dish.category?.trim() || 'Основное',
                         portion: dish.portion?.trim() || '1 порция',
@@ -688,12 +722,12 @@ export const NutritionTemplates = () => {
                         protein: Number(dish.protein) || 0,
                         carbs: Number(dish.carbs) || 0,
                         fat: Number(dish.fat) || 0,
-                        order: index,
+                        order: dishIndex,
                     })),
                 })),
             }));
 
-            const updatedData = {
+            const updatedData: Partial<NutritionPlanTemplate> = {
                 name: values.name?.trim() || 'Новый план питания',
                 description: values.description?.trim() || 'Описание плана питания',
                 durationDays: Number(values.durationDays) || 7,
@@ -737,7 +771,6 @@ export const NutritionTemplates = () => {
         }
     };
 
-    // Удаление плана
     const handleDelete = async () => {
         if (!currentPlan) return;
 
@@ -772,7 +805,6 @@ export const NutritionTemplates = () => {
         setSelectedDifficulty(null);
     };
 
-    // Вспомогательные функции для времени дня
     const getTimeOfDayName = (time: string) => {
         const times: Record<string, string> = {
             morning: 'Утро',
@@ -808,7 +840,6 @@ export const NutritionTemplates = () => {
                 </Button>
             </div>
 
-            {/* Фильтры */}
             <div className={styles.filters}>
                 <Space size="middle" wrap>
                     <div className={styles.filterItem}>
@@ -880,7 +911,6 @@ export const NutritionTemplates = () => {
                 </div>
             </div>
 
-            {/* Аккордеон со списком шаблонов */}
             <div className={styles.accordionContainer}>
                 {filteredPlans.length > 0 ? (
                     <Collapse
@@ -957,7 +987,6 @@ export const NutritionTemplates = () => {
                                 className={styles.planPanel}
                             >
                                 <div className={styles.panelContent}>
-                                    {/* Описание */}
                                     <div className={styles.descriptionSection}>
                                         <h4 className={styles.sectionTitle}>
                                             <InfoCircleOutlined /> Описание шаблона
@@ -967,7 +996,6 @@ export const NutritionTemplates = () => {
                                         </p>
                                     </div>
 
-                                    {/* Детали плана */}
                                     <div className={styles.planDetails}>
                                         <Row gutter={[16, 16]}>
                                             <Col span={8}>
@@ -1000,7 +1028,6 @@ export const NutritionTemplates = () => {
                                         </Row>
                                     </div>
 
-                                    {/* Дни питания */}
                                     {plan.days && plan.days.length > 0 ? (
                                         <div className={styles.daysSection}>
                                             <h4 className={styles.sectionTitle}>
@@ -1010,7 +1037,9 @@ export const NutritionTemplates = () => {
                                                 {plan.days.map((day, dayIndex) => (
                                                     <Panel
                                                         header={`День ${day.dayNumber}: ${day.name || `День ${day.dayNumber}`}`}
-                                                        key={day.id || dayIndex}
+                                                        key={
+                                                            day.id || dayIndex.toString()
+                                                        }
                                                     >
                                                         {day.meals &&
                                                         day.meals.length > 0 ? (
@@ -1258,7 +1287,6 @@ export const NutritionTemplates = () => {
                 )}
             </div>
 
-            {/* Модалка создания шаблона */}
             <Modal
                 title="Создать новый шаблон плана питания"
                 open={isCreateModalOpen}
@@ -1279,8 +1307,12 @@ export const NutritionTemplates = () => {
                 width={800}
                 style={{ maxHeight: '80vh', overflow: 'auto' }}
             >
-                <Form form={createForm} layout="vertical" onFinish={handleCreate}>
-                    <Form.Item
+                <Form<NutritionPlanFormData>
+                    form={createForm}
+                    layout="vertical"
+                    onFinish={handleCreate}
+                >
+                    <Form.Item<NutritionPlanFormData>
                         name="name"
                         label="Название шаблона"
                         rules={[
@@ -1293,7 +1325,7 @@ export const NutritionTemplates = () => {
                     >
                         <Input placeholder="Например: План для похудения" />
                     </Form.Item>
-                    <Form.Item
+                    <Form.Item<NutritionPlanFormData>
                         name="description"
                         label="Описание шаблона"
                         rules={[
@@ -1310,7 +1342,7 @@ export const NutritionTemplates = () => {
                         />
                     </Form.Item>
                     <div className={styles.formRow}>
-                        <Form.Item
+                        <Form.Item<NutritionPlanFormData>
                             name="durationDays"
                             label="Продолжительность (дней)"
                             normalize={(value) => Number(value)}
@@ -1328,7 +1360,7 @@ export const NutritionTemplates = () => {
                             <Input type="number" min={1} max={365} />
                         </Form.Item>
 
-                        <Form.Item
+                        <Form.Item<NutritionPlanFormData>
                             name="difficulty"
                             label="Уровень сложности"
                             rules={[
@@ -1343,7 +1375,7 @@ export const NutritionTemplates = () => {
                             </Select>
                         </Form.Item>
 
-                        <Form.Item
+                        <Form.Item<NutritionPlanFormData>
                             name="goal"
                             label="Цель плана"
                             rules={[{ required: true, message: 'Введите цель плана' }]}
@@ -1352,7 +1384,6 @@ export const NutritionTemplates = () => {
                             <Input placeholder="Например: Похудение, Набор массы, Поддержание" />
                         </Form.Item>
                     </div>
-                    {/* Динамическая форма для дней */}
                     <Form.List name="days">
                         {(fields, { add, remove }) => (
                             <>
@@ -1379,7 +1410,7 @@ export const NutritionTemplates = () => {
                                     </p>
                                 )}
 
-                                {fields.map((field, dayIndex) => (
+                                {fields.map((field: FormListField, dayIndex: number) => (
                                     <Card
                                         key={field.key}
                                         title={`День ${dayIndex + 1}`}
@@ -1413,7 +1444,6 @@ export const NutritionTemplates = () => {
                                             />
                                         </Form.Item>
 
-                                        {/* Приемы пищи для дня */}
                                         <Form.List name={[field.name, 'meals']}>
                                             {(
                                                 mealFields,
@@ -1456,7 +1486,10 @@ export const NutritionTemplates = () => {
                                                     </div>
 
                                                     {mealFields.map(
-                                                        (mealField, mealIndex) => (
+                                                        (
+                                                            mealField: FormListField,
+                                                            mealIndex: number
+                                                        ) => (
                                                             <Card
                                                                 key={mealField.key}
                                                                 size="small"
@@ -1549,7 +1582,6 @@ export const NutritionTemplates = () => {
                                                                     </Select>
                                                                 </Form.Item>
 
-                                                                {/* Форма для блюд приема пищи */}
                                                                 <MealDishesForm
                                                                     dayIndex={dayIndex}
                                                                     mealIndex={mealIndex}
@@ -1573,7 +1605,6 @@ export const NutritionTemplates = () => {
                 </Form>
             </Modal>
 
-            {/* Модалка редактирования шаблона */}
             <Modal
                 title="Редактировать шаблон плана питания"
                 open={isEditModalOpen}
@@ -1595,8 +1626,12 @@ export const NutritionTemplates = () => {
                 style={{ maxHeight: '80vh', overflow: 'auto' }}
             >
                 {currentPlan && (
-                    <Form form={editForm} layout="vertical" onFinish={handleEdit}>
-                        <Form.Item
+                    <Form<NutritionPlanFormData>
+                        form={editForm}
+                        layout="vertical"
+                        onFinish={handleEdit}
+                    >
+                        <Form.Item<NutritionPlanFormData>
                             name="name"
                             label="Название шаблона"
                             rules={[
@@ -1609,7 +1644,7 @@ export const NutritionTemplates = () => {
                         >
                             <Input placeholder="Например: План для похудения" />
                         </Form.Item>
-                        <Form.Item
+                        <Form.Item<NutritionPlanFormData>
                             name="description"
                             label="Описание шаблона"
                             rules={[
@@ -1626,7 +1661,7 @@ export const NutritionTemplates = () => {
                             />
                         </Form.Item>
                         <div className={styles.formRow}>
-                            <Form.Item
+                            <Form.Item<NutritionPlanFormData>
                                 name="durationDays"
                                 label="Продолжительность (дней)"
                                 normalize={(value) => Number(value)}
@@ -1647,7 +1682,7 @@ export const NutritionTemplates = () => {
                                 <Input type="number" min={1} max={365} />
                             </Form.Item>
 
-                            <Form.Item
+                            <Form.Item<NutritionPlanFormData>
                                 name="difficulty"
                                 label="Уровень сложности"
                                 rules={[
@@ -1665,7 +1700,7 @@ export const NutritionTemplates = () => {
                                 </Select>
                             </Form.Item>
 
-                            <Form.Item
+                            <Form.Item<NutritionPlanFormData>
                                 name="goal"
                                 label="Цель плана"
                                 rules={[
@@ -1676,7 +1711,6 @@ export const NutritionTemplates = () => {
                                 <Input />
                             </Form.Item>
                         </div>
-                        {/* Редактирование дней */}
                         <Form.List name="days">
                             {(fields, { add, remove }) => (
                                 <>
@@ -1697,187 +1731,198 @@ export const NutritionTemplates = () => {
                                         </Button>
                                     </div>
 
-                                    {fields.map((field, dayIndex) => (
-                                        <Card
-                                            key={field.key}
-                                            title={`День ${dayIndex + 1}`}
-                                            size="small"
-                                            className={styles.dayCard}
-                                            extra={
-                                                <MinusCircleOutlined
-                                                    onClick={() => remove(field.name)}
-                                                    style={{ color: '#ff4d4f' }}
-                                                />
-                                            }
-                                        >
-                                            <Form.Item
-                                                {...field}
-                                                name={[field.name, 'dayNumber']}
-                                                fieldKey={[field.key, 'dayNumber']}
-                                                hidden
+                                    {fields.map(
+                                        (field: FormListField, dayIndex: number) => (
+                                            <Card
+                                                key={field.key}
+                                                title={`День ${dayIndex + 1}`}
+                                                size="small"
+                                                className={styles.dayCard}
+                                                extra={
+                                                    <MinusCircleOutlined
+                                                        onClick={() => remove(field.name)}
+                                                        style={{ color: '#ff4d4f' }}
+                                                    />
+                                                }
                                             >
-                                                <Input type="hidden" />
-                                            </Form.Item>
+                                                <Form.Item
+                                                    {...field}
+                                                    name={[field.name, 'dayNumber']}
+                                                    fieldKey={[field.key, 'dayNumber']}
+                                                    hidden
+                                                >
+                                                    <Input type="hidden" />
+                                                </Form.Item>
 
-                                            <Form.Item
-                                                label="Название дня (опционально)"
-                                                name={[field.name, 'name']}
-                                                fieldKey={[field.key, 'name']}
-                                            >
-                                                <Input />
-                                            </Form.Item>
+                                                <Form.Item
+                                                    label="Название дня (опционально)"
+                                                    name={[field.name, 'name']}
+                                                    fieldKey={[field.key, 'name']}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
 
-                                            {/* Приемы пищи для дня */}
-                                            <Form.List name={[field.name, 'meals']}>
-                                                {(
-                                                    mealFields,
-                                                    { add: addMeal, remove: removeMeal }
-                                                ) => (
-                                                    <>
-                                                        <div
-                                                            className={
-                                                                styles.subSectionHeader
-                                                            }
-                                                        >
-                                                            <h5>Приемы пищи дня</h5>
-                                                            <Button
-                                                                type="dashed"
-                                                                size="small"
-                                                                onClick={() =>
-                                                                    addMeal({
-                                                                        id: `meal-${Date.now()}`,
-                                                                        name: `Прием пищи ${mealFields.length + 1}`,
-                                                                        dishes: [],
-                                                                    })
-                                                                }
-                                                                icon={
-                                                                    <PlusCircleOutlined />
-                                                                }
-                                                                disabled={
-                                                                    mealFields.length >= 6
+                                                <Form.List name={[field.name, 'meals']}>
+                                                    {(
+                                                        mealFields,
+                                                        {
+                                                            add: addMeal,
+                                                            remove: removeMeal,
+                                                        }
+                                                    ) => (
+                                                        <>
+                                                            <div
+                                                                className={
+                                                                    styles.subSectionHeader
                                                                 }
                                                             >
-                                                                Добавить прием пищи
-                                                            </Button>
-                                                        </div>
-
-                                                        {mealFields.map(
-                                                            (mealField, mealIndex) => (
-                                                                <Card
-                                                                    key={mealField.key}
+                                                                <h5>Приемы пищи дня</h5>
+                                                                <Button
+                                                                    type="dashed"
                                                                     size="small"
-                                                                    title={`Прием пищи ${mealIndex + 1}`}
-                                                                    className={
-                                                                        styles.mealFormCard
+                                                                    onClick={() =>
+                                                                        addMeal({
+                                                                            id: `meal-${Date.now()}`,
+                                                                            name: `Прием пищи ${mealFields.length + 1}`,
+                                                                            dishes: [],
+                                                                        })
                                                                     }
-                                                                    extra={
-                                                                        <MinusCircleOutlined
-                                                                            onClick={() =>
-                                                                                removeMeal(
-                                                                                    mealField.name
-                                                                                )
-                                                                            }
-                                                                            style={{
-                                                                                color: '#ff4d4f',
-                                                                            }}
-                                                                        />
+                                                                    icon={
+                                                                        <PlusCircleOutlined />
+                                                                    }
+                                                                    disabled={
+                                                                        mealFields.length >=
+                                                                        6
                                                                     }
                                                                 >
-                                                                    <Form.Item
-                                                                        {...mealField}
-                                                                        label="Название приема пищи"
-                                                                        name={[
-                                                                            mealField.name,
-                                                                            'name',
-                                                                        ]}
-                                                                        fieldKey={[
-                                                                            mealField.key,
-                                                                            'name',
-                                                                        ]}
-                                                                        rules={[
-                                                                            {
-                                                                                required: true,
-                                                                                message:
-                                                                                    'Введите название приема пищи',
-                                                                            },
-                                                                        ]}
-                                                                    >
-                                                                        <Input />
-                                                                    </Form.Item>
+                                                                    Добавить прием пищи
+                                                                </Button>
+                                                            </div>
 
-                                                                    <Form.Item
-                                                                        label="Описание (опционально)"
-                                                                        name={[
-                                                                            mealField.name,
-                                                                            'description',
-                                                                        ]}
-                                                                        fieldKey={[
-                                                                            mealField.key,
-                                                                            'description',
-                                                                        ]}
+                                                            {mealFields.map(
+                                                                (
+                                                                    mealField: FormListField,
+                                                                    mealIndex: number
+                                                                ) => (
+                                                                    <Card
+                                                                        key={
+                                                                            mealField.key
+                                                                        }
+                                                                        size="small"
+                                                                        title={`Прием пищи ${mealIndex + 1}`}
+                                                                        className={
+                                                                            styles.mealFormCard
+                                                                        }
+                                                                        extra={
+                                                                            <MinusCircleOutlined
+                                                                                onClick={() =>
+                                                                                    removeMeal(
+                                                                                        mealField.name
+                                                                                    )
+                                                                                }
+                                                                                style={{
+                                                                                    color: '#ff4d4f',
+                                                                                }}
+                                                                            />
+                                                                        }
                                                                     >
-                                                                        <TextArea
-                                                                            rows={2}
+                                                                        <Form.Item
+                                                                            {...mealField}
+                                                                            label="Название приема пищи"
+                                                                            name={[
+                                                                                mealField.name,
+                                                                                'name',
+                                                                            ]}
+                                                                            fieldKey={[
+                                                                                mealField.key,
+                                                                                'name',
+                                                                            ]}
+                                                                            rules={[
+                                                                                {
+                                                                                    required: true,
+                                                                                    message:
+                                                                                        'Введите название приема пищи',
+                                                                                },
+                                                                            ]}
+                                                                        >
+                                                                            <Input />
+                                                                        </Form.Item>
+
+                                                                        <Form.Item
+                                                                            label="Описание (опционально)"
+                                                                            name={[
+                                                                                mealField.name,
+                                                                                'description',
+                                                                            ]}
+                                                                            fieldKey={[
+                                                                                mealField.key,
+                                                                                'description',
+                                                                            ]}
+                                                                        >
+                                                                            <TextArea
+                                                                                rows={2}
+                                                                            />
+                                                                        </Form.Item>
+
+                                                                        <Form.Item
+                                                                            label="Время дня (опционально)"
+                                                                            name={[
+                                                                                mealField.name,
+                                                                                'timeOfDay',
+                                                                            ]}
+                                                                            fieldKey={[
+                                                                                mealField.key,
+                                                                                'timeOfDay',
+                                                                            ]}
+                                                                        >
+                                                                            <Select>
+                                                                                <Option value="morning">
+                                                                                    Утро
+                                                                                </Option>
+                                                                                <Option value="breakfast">
+                                                                                    Завтрак
+                                                                                </Option>
+                                                                                <Option value="lunch">
+                                                                                    Обед
+                                                                                </Option>
+                                                                                <Option value="dinner">
+                                                                                    Ужин
+                                                                                </Option>
+                                                                                <Option value="snack">
+                                                                                    Перекус
+                                                                                </Option>
+                                                                                <Option value="evening">
+                                                                                    Вечер
+                                                                                </Option>
+                                                                            </Select>
+                                                                        </Form.Item>
+
+                                                                        <MealDishesForm
+                                                                            dayIndex={
+                                                                                dayIndex
+                                                                            }
+                                                                            mealIndex={
+                                                                                mealIndex
+                                                                            }
+                                                                            form={
+                                                                                editForm
+                                                                            }
+                                                                            allDishes={
+                                                                                allDishes
+                                                                            }
+                                                                            onOpenDishModal={
+                                                                                handleOpenDishModal
+                                                                            }
                                                                         />
-                                                                    </Form.Item>
-
-                                                                    <Form.Item
-                                                                        label="Время дня (опционально)"
-                                                                        name={[
-                                                                            mealField.name,
-                                                                            'timeOfDay',
-                                                                        ]}
-                                                                        fieldKey={[
-                                                                            mealField.key,
-                                                                            'timeOfDay',
-                                                                        ]}
-                                                                    >
-                                                                        <Select>
-                                                                            <Option value="morning">
-                                                                                Утро
-                                                                            </Option>
-                                                                            <Option value="breakfast">
-                                                                                Завтрак
-                                                                            </Option>
-                                                                            <Option value="lunch">
-                                                                                Обед
-                                                                            </Option>
-                                                                            <Option value="dinner">
-                                                                                Ужин
-                                                                            </Option>
-                                                                            <Option value="snack">
-                                                                                Перекус
-                                                                            </Option>
-                                                                            <Option value="evening">
-                                                                                Вечер
-                                                                            </Option>
-                                                                        </Select>
-                                                                    </Form.Item>
-
-                                                                    {/* Форма для блюд приема пищи */}
-                                                                    <MealDishesForm
-                                                                        dayIndex={
-                                                                            dayIndex
-                                                                        }
-                                                                        mealIndex={
-                                                                            mealIndex
-                                                                        }
-                                                                        form={editForm}
-                                                                        allDishes={
-                                                                            allDishes
-                                                                        }
-                                                                        onOpenDishModal={
-                                                                            handleOpenDishModal
-                                                                        }
-                                                                    />
-                                                                </Card>
-                                                            )
-                                                        )}
-                                                    </>
-                                                )}
-                                            </Form.List>
-                                        </Card>
-                                    ))}
+                                                                    </Card>
+                                                                )
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </Form.List>
+                                            </Card>
+                                        )
+                                    )}
                                 </>
                             )}
                         </Form.List>
@@ -1885,7 +1930,6 @@ export const NutritionTemplates = () => {
                 )}
             </Modal>
 
-            {/* Модалка удаления шаблона */}
             <Modal
                 title="Удалить шаблон плана питания"
                 open={isDeleteModalOpen}
@@ -1920,7 +1964,6 @@ export const NutritionTemplates = () => {
                 )}
             </Modal>
 
-            {/* Модалка добавления блюд из базы данных */}
             <Modal
                 title="Выбрать блюдо из базы данных"
                 open={isAddDishModalOpen}
@@ -1931,7 +1974,6 @@ export const NutritionTemplates = () => {
                 maskClosable={false}
             >
                 <div className={styles.dishModalContent}>
-                    {/* Фильтры блюд */}
                     <div className={styles.dishFilters}>
                         <Space size="middle" wrap>
                             <div className={styles.filterItem}>
@@ -1965,7 +2007,6 @@ export const NutritionTemplates = () => {
                         </Space>
                     </div>
 
-                    {/* Список блюд */}
                     <div className={styles.dishesListModal}>
                         {filteredDishes.length > 0 ? (
                             <Row gutter={[16, 16]}>
@@ -1980,7 +2021,6 @@ export const NutritionTemplates = () => {
                                             <div className={styles.dishCardContent}>
                                                 <div className={styles.dishCardHeader}>
                                                     <strong>{dish.name}</strong>{' '}
-                                                    {/* Изменил с dish.title */}
                                                     <Tag
                                                         color="blue"
                                                         className={styles.smallTag}

@@ -12,11 +12,9 @@ export const WorkoutPlanView = ({ plan }: Props) => {
     if (!plan)
         return <Typography.Text type="secondary">План не назначен</Typography.Text>;
 
-    // Безопасный доступ к массивам
     const weeks = Array.isArray(plan.weeks) ? plan.weeks : [];
     const workouts = Array.isArray(plan.workouts) ? plan.workouts : [];
 
-    // Если план в формате weeks (как из trainingPlanTemplates)
     if (weeks.length > 0) {
         return (
             <Card>
@@ -132,7 +130,6 @@ export const WorkoutPlanView = ({ plan }: Props) => {
         );
     }
 
-    // Если план в старом формате (workouts)
     if (workouts.length > 0) {
         return (
             <Card>

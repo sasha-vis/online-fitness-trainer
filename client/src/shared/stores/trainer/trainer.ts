@@ -56,13 +56,6 @@ export const useTrainerStore = create((set) => ({
             trainerEmail: null,
         });
     },
-    // assignPlan: (clientId: string, plan) => {
-    //   set((state) => ({
-    //     clients: state.clients.map((c) =>
-    //       c.id === clientId ? { ...c, plans: [...(c.plans || []), plan] } : c
-    //     ),
-    //   }));
-    // },
     assignPlan: async (clientId: string, planType: string, planData: unknown) => {
         await updateClient(clientId, { [planType]: planData });
         set((state: any) => ({

@@ -18,9 +18,6 @@ import {
     ClientList,
     ClientDetail,
     WorkoutPlanEditor,
-    NutritionForm,
-    NutritionDetailForm,
-    ClientProgress,
     NotFound,
     ReportsPage,
 } from '@/pages';
@@ -85,17 +82,6 @@ export const Router = () => {
                     <Route path="clients" element={<ClientList />} />
                     <Route path="clients/:clientId" element={<ClientDetail />}>
                         <Route path="workout-plan" element={<WorkoutPlanEditor />} />
-                        {/* <Route
-                            path="workouts/:workoutId"
-                            element={<WorkoutDetailForm />}
-                        /> */}
-                        <Route path="nutrition" element={<NutritionForm />} />
-                        <Route
-                            path="nutrition/:nutritionId"
-                            element={<NutritionDetailForm />}
-                        />
-
-                        <Route path="progress" element={<ClientProgress />} />
                         <Route path="chat" element={<Chat />} />
                     </Route>
 

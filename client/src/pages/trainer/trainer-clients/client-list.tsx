@@ -27,7 +27,6 @@ export const ClientList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
 
-    // Получаем значения из URL или используем значения по умолчанию
     const initialSearchText = searchParams.get('search') || '';
     const initialFilterType = searchParams.get('filter') || 'all';
     const initialShowFilters = searchParams.get('showFilters') === 'true';
@@ -36,7 +35,6 @@ export const ClientList = () => {
     const [filterType, setFilterType] = useState(initialFilterType);
     const [showFilters, setShowFilters] = useState(initialShowFilters);
 
-    // Функция для обновления URL параметров
     const updateUrlParams = useCallback(
         (updates: { search?: string; filter?: string; showFilters?: boolean }) => {
             const params = new URLSearchParams(searchParams);
@@ -65,7 +63,6 @@ export const ClientList = () => {
                 }
             }
 
-            // Используем navigate для обновления URL без перезагрузки
             navigate({ search: params.toString() }, { replace: true });
         },
         [searchParams, navigate]
@@ -75,7 +72,6 @@ export const ClientList = () => {
         fetchClients();
     }, []);
 
-    // Обновление URL при изменении фильтров
     useEffect(() => {
         updateUrlParams({
             search: searchText,
@@ -84,18 +80,15 @@ export const ClientList = () => {
         });
     }, [searchText, filterType, showFilters, updateUrlParams]);
 
-    // Фильтрация клиентов
     const filteredClients = useMemo(() => {
         let result = [...clients];
 
-        // Фильтр по типу
         if (filterType === 'my') {
             result = result.filter((client) => client.trainerId === user?.id);
         } else if (filterType === 'without') {
             result = result.filter((client) => !client.trainerId);
         }
 
-        // Поиск по имени/email
         if (searchText.trim()) {
             const searchLower = searchText.toLowerCase();
             result = result.filter(
@@ -116,7 +109,6 @@ export const ClientList = () => {
         setSearchText('');
         setFilterType('all');
         setShowFilters(false);
-        // Очищаем все параметры из URL
         navigate({ search: '' }, { replace: true });
     };
 
@@ -161,7 +153,6 @@ export const ClientList = () => {
 
     return (
         <div>
-            {/* Заголовок и кнопки управления */}
             <Card size="small" style={{ marginBottom: 16, background: '#fafafa' }}>
                 <div
                     style={{
@@ -198,7 +189,6 @@ export const ClientList = () => {
                 </div>
             </Card>
 
-            {/* Панель фильтров */}
             {showFilters && (
                 <Card
                     size="small"
@@ -263,7 +253,6 @@ export const ClientList = () => {
                 </Card>
             )}
 
-            {/* Список клиентов */}
             {filteredClients.length === 0 ? (
                 <Card style={{ textAlign: 'center', padding: '40px' }}>
                     <Alert

@@ -5,7 +5,6 @@ interface ErrorMessageProps {
     description: string;
     showIcon?: boolean;
 }
-//"alert alert-error alert-with-description"
 
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     description,

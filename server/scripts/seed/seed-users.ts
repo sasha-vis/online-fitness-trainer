@@ -42,11 +42,9 @@ async function seedUsers() {
         await AppDataSource.initialize();
         console.log('📦 Database connected');
 
-        // Очищаем таблицу (опционально)
         await userRepository.clear();
         console.log('🧹 Users table cleared');
 
-        // Создаем тестовых пользователей
         for (const userData of testUsers) {
             const hashedPassword = await bcrypt.hash(userData.password, 10);
 

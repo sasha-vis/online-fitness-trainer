@@ -63,7 +63,6 @@
     font-size: 0.85rem;
 }
 
-// Аккордеон
 .accordionContainer {
     background: white;
     border-radius: 8px;
@@ -208,7 +207,6 @@
     }
 }
 
-// Контент внутри аккордеона
 .panelContent {
     padding: 1.5rem;
     background-color: #fafafa;
@@ -361,7 +359,6 @@
     }
 }
 
-// Стили для модалок
 :global(.ant-modal-body) {
     .formRow {
         display: flex;
@@ -466,7 +463,6 @@
     border: 1px solid rgba(255, 77, 79, 0.2);
 }
 
-// Адаптивность
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
@@ -545,7 +541,6 @@
     }
 }
 
-// Анимации для интерактивных элементов
 :global(.ant-btn) {
     transition: all 0.2s ease;
 }
@@ -558,7 +553,6 @@
     transition: all 0.3s ease !important;
 }
 
-// Градиентный эффект для заголовка
 .title {
     background: linear-gradient(45deg, #1a1a1a, #722ed1);
     -webkit-background-clip: text;
@@ -580,7 +574,6 @@
     }
 }
 
-// Улучшения для карточек
 :global(.ant-card) {
     transition: all 0.3s ease;
 
@@ -588,8 +581,6 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 }
-
-// В training-plans.module.scss добавьте эти стили:
 
 .exerciseModalContent {
     max-height: 60vh;
@@ -716,7 +707,6 @@
     width: 100%;
 }
 
-// Для мобильных устройств
 @media (max-width: 768px) {
     .exerciseParams {
         flex-direction: column;

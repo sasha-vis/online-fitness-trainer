@@ -3,8 +3,6 @@ import { Button, Space, Modal, Form, Input, Select, InputNumber } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { WorkoutModalProps, WorkoutFormData } from '@shared/stores/workout/workout-types';
 
-// const { Title, Text } = Typography;
-// const { Panel } = Collapse;
 const { Option } = Select;
 
 export const WorkoutModal: React.FC<WorkoutModalProps> = ({

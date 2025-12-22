@@ -1,5 +1,5 @@
 import { Card, Typography, Tag, Collapse, Space, List } from 'antd';
-import { AppleOutlined, FireOutlined, CalendarOutlined } from '@ant-design/icons';
+import { AppleOutlined, FireOutlined } from '@ant-design/icons';
 
 const { Panel } = Collapse;
 const { Title, Text } = Typography;
@@ -14,7 +14,6 @@ export const NutritionPlanView = ({ plan }: Props) => {
             <Typography.Text type="secondary">План питания не назначен</Typography.Text>
         );
 
-    // Безопасный доступ к массивам
     const days = Array.isArray(plan.days) ? plan.days : [];
 
     return (
@@ -50,7 +49,6 @@ export const NutritionPlanView = ({ plan }: Props) => {
                         <Panel header={day.name || ''} key={dayIndex}>
                             {Array.isArray(day.meals) && day.meals.length > 0 ? (
                                 day.meals.map((meal, mealIndex) => {
-                                    // Считаем калории для приема пищи
                                     const mealCalories = Array.isArray(meal.dishes)
                                         ? meal.dishes.reduce(
                                               (total, dish) =>
