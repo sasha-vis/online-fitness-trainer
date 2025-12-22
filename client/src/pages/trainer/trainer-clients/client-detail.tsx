@@ -11,7 +11,7 @@ import {
     Breadcrumb,
     Spin,
     Popconfirm,
-    Alert, // Добавляем Popconfirm для подтверждения удаления
+    Alert,
 } from 'antd';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import {
@@ -51,11 +51,10 @@ export const ClientDetail = () => {
     const activeTab = searchParams.get('tab') || 'workout';
 
     useEffect(() => {
-        // При монтировании компонента, если нет параметра tab - добавляем его
         if (!searchParams.get('tab')) {
             const newParams = new URLSearchParams(searchParams);
             newParams.set('tab', 'workout');
-            setSearchParams(newParams, { replace: true }); // replace: true чтобы не добавлять в историю
+            setSearchParams(newParams, { replace: true });
         }
     }, []);
 
@@ -71,7 +70,6 @@ export const ClientDetail = () => {
         try {
             setLoadingPlans(true);
 
-            // Получаем назначение тренировок
             const workoutAssignmentsRef = collection(db, 'clientTrainingAssignments');
             const workoutQuery = query(
                 workoutAssignmentsRef,
@@ -101,7 +99,6 @@ export const ClientDetail = () => {
                 setWorkoutPlan(null);
             }
 
-            // Получаем назначение питания
             const nutritionAssignmentsRef = collection(db, 'clientNutritionAssignments');
             const nutritionQuery = query(
                 nutritionAssignmentsRef,
@@ -144,12 +141,11 @@ export const ClientDetail = () => {
         try {
             setLoadingProgress(true);
 
-            // Запрос отчетов из таблицы bodyMeasurements
             const progressRef = collection(db, 'bodyMeasurements');
             const progressQuery = query(
                 progressRef,
                 where('clientId', '==', clientId),
-                orderBy('createdAt', 'desc') // Сортируем по дате создания (новые сверху)
+                orderBy('createdAt', 'desc')
             );
             const progressSnapshot = await getDocs(progressQuery);
 
@@ -157,7 +153,6 @@ export const ClientDetail = () => {
                 const data = progressSnapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
-                    // Преобразуем Firestore Timestamp в Date
                     createdAt: doc.data().createdAt?.toDate?.() || new Date(),
                     updatedAt: doc.data().updatedAt?.toDate?.() || null,
                 })) as BodyMeasurement[];
@@ -173,14 +168,12 @@ export const ClientDetail = () => {
         }
     };
 
-    // Функция удаления плана тренировок
     const handleDeleteWorkoutPlan = async () => {
         if (!workoutPlan?.assignmentId) return;
 
         try {
             setDeletingWorkoutPlan(true);
 
-            // Удаляем запись из clientTrainingAssignments
             const assignmentRef = doc(
                 db,
                 'clientTrainingAssignments',
@@ -188,7 +181,6 @@ export const ClientDetail = () => {
             );
             await deleteDoc(assignmentRef);
 
-            // Обновляем состояние
             setWorkoutPlan(null);
 
             message.success('План тренировок удален');
@@ -200,14 +192,12 @@ export const ClientDetail = () => {
         }
     };
 
-    // Функция удаления плана питания
     const handleDeleteNutritionPlan = async () => {
         if (!nutritionPlan?.assignmentId) return;
 
         try {
             setDeletingNutritionPlan(true);
 
-            // Удаляем запись из clientNutritionAssignments
             const assignmentRef = doc(
                 db,
                 'clientNutritionAssignments',
@@ -215,7 +205,6 @@ export const ClientDetail = () => {
             );
             await deleteDoc(assignmentRef);
 
-            // Обновляем состояние
             setNutritionPlan(null);
 
             message.success('План питания удален');

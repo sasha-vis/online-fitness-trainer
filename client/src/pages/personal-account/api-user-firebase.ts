@@ -1,4 +1,11 @@
-import { doc, getDoc, updateDoc, deleteField, setDoc } from 'firebase/firestore';
+import {
+    doc,
+    getDoc,
+    updateDoc,
+    deleteField,
+    setDoc,
+    FieldValue,
+} from 'firebase/firestore';
 import { db } from '@/firebase.ts';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { IUser, IUserInfo, UpdateUserPayload } from '@pages/personal-account/types.ts';
@@ -28,7 +35,13 @@ export async function updateUserByUid(
 ): Promise<IUser> {
     const userRef = doc(db, 'users', uid);
 
-    const userUpdateData: Record<string, any> = {
+    const userUpdateData: {
+        name: string;
+        surname: string;
+        email: string;
+        phone?: string | FieldValue;
+        updatedAt: Date;
+    } = {
         name: payload.name,
         surname: payload.surname,
         email: payload.email,
@@ -53,7 +66,7 @@ export async function updateUserByUid(
 
 export async function updateClientProfileByUserId(
     userId: string,
-    payload: { height?: number | null; [key: string]: any }
+    payload: { height?: number | null }
 ) {
     const q = query(collection(db, 'clientProfiles'), where('userId', '==', userId));
     const snapshot = await getDocs(q);
@@ -64,7 +77,10 @@ export async function updateClientProfileByUserId(
 
     const docRef = snapshot.docs[0].ref;
 
-    const updateData: Record<string, any> = { ...payload, updatedAt: new Date() };
+    const updateData: {
+        updatedAt: Date;
+        height?: number | FieldValue | null;
+    } = { ...payload, updatedAt: new Date() };
 
     updateData.height = payload.height ?? deleteField();
 

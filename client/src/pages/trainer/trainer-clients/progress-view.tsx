@@ -25,16 +25,16 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ reports }) => {
     const getStatistics = () => {
         if (reports.length === 0) return null;
 
-        const firstReport = reports[reports.length - 1]; // Самый старый
-        const lastReport = reports[0]; // Самый новый
+        const firstReport = reports[reports.length - 1];
+        const lastReport = reports[0];
 
         const weightChange =
             lastReport.weight && firstReport.weight
-                ? lastReport.weight - firstReport.weight // Убираем toFixed здесь
+                ? lastReport.weight - firstReport.weight
                 : null;
 
         return {
-            weightChange, // Теперь это число или null
+            weightChange,
             periodInDays: Math.ceil(
                 (new Date(lastReport.createdAt).getTime() -
                     new Date(firstReport.createdAt).getTime()) /
@@ -64,10 +64,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ reports }) => {
                             <Text strong>Всего отчетов: </Text>
                             <Tag color="blue">{statistics.totalReports}</Tag>
                         </div>
-                        <div>
-                            <Text strong>Период отслеживания: </Text>
-                            <Tag>{statistics.periodInDays} дней</Tag>
-                        </div>
                         {statistics.weightChange !== null && (
                             <div>
                                 <Text strong>Изменение веса: </Text>
@@ -96,7 +92,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ reports }) => {
                     <List.Item>
                         <Card style={{ width: '100%' }}>
                             <Flex justify="space-between" align="center">
-                                {/* Дата */}
                                 <Flex vertical style={{ width: '20%' }}>
                                     <Space>
                                         <CalendarOutlined />
@@ -119,7 +114,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ reports }) => {
                                     )}
                                 </Flex>
 
-                                {/* Измерения */}
                                 <Flex justify="space-around" style={{ width: '60%' }}>
                                     <Flex vertical>
                                         {item.arm && (
@@ -157,7 +151,6 @@ export const ProgressView: React.FC<ProgressViewProps> = ({ reports }) => {
                                     </Flex>
                                 </Flex>
 
-                                {/* Фото (если есть) */}
                                 {item.photosUrl && item.photosUrl.length > 0 && (
                                     <Flex vertical style={{ width: '20%' }}>
                                         <Text type="secondary" style={{ fontSize: 12 }}>

@@ -22,7 +22,6 @@ export const Nutrition = () => {
         try {
             setLoading(true);
 
-            // Получаем назначение питания
             const nutritionAssignmentsRef = collection(db, 'clientNutritionAssignments');
             const nutritionQuery = query(
                 nutritionAssignmentsRef,

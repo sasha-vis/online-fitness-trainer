@@ -22,7 +22,6 @@ export const Workouts = () => {
         try {
             setLoading(true);
 
-            // Получаем назначение тренировок
             const workoutAssignmentsRef = collection(db, 'clientTrainingAssignments');
             const workoutQuery = query(
                 workoutAssignmentsRef,

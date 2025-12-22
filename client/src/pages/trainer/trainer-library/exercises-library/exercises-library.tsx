@@ -49,7 +49,6 @@ interface Exercise {
     updatedAt?: Date;
 }
 
-// Получение уникальных групп мышц из упражнений
 const getMuscleGroupsFromExercises = (exercises: Exercise[]) => {
     return Array.from(new Set(exercises.map((ex) => ex.muscleGroup))).sort();
 };
@@ -62,15 +61,12 @@ export const ExercisesLibrary = () => {
     const [activeKeys, setActiveKeys] = useState<string[]>([]);
     const [muscleGroups, setMuscleGroups] = useState<string[]>([]);
     const [submitting, setSubmitting] = useState(false);
-
-    // Состояния для модалок
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [currentExercise, setCurrentExercise] = useState<Exercise | null>(null);
     const [form] = Form.useForm();
 
-    // Загрузка упражнений из Firebase
     const fetchExercises = async () => {
         try {
             setLoading(true);
@@ -82,7 +78,7 @@ export const ExercisesLibrary = () => {
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 exercisesData.push({
-                    id: doc.id, // ID документа из Firebase
+                    id: doc.id,
                     title: data.title,
                     muscleGroup: data.muscleGroup,
                     description: data.description || '',
@@ -106,7 +102,6 @@ export const ExercisesLibrary = () => {
         fetchExercises();
     }, []);
 
-    // Фильтрация упражнений
     const filteredExercises = useMemo(() => {
         return exercises.filter((exercise) => {
             const matchesSearch =
@@ -121,17 +116,14 @@ export const ExercisesLibrary = () => {
         });
     }, [exercises, searchText, selectedMuscleGroup]);
 
-    // Обработчик аккордеона
     const handleAccordionChange = (keys: string | string[]) => {
         setActiveKeys(Array.isArray(keys) ? keys : [keys]);
     };
 
-    // Открытие видео в новой вкладке
     const openVideo = (url: string) => {
         window.open(url.replace('/embed/', '/watch?v='), '_blank');
     };
 
-    // Модалки
     const showCreateModal = () => {
         form.resetFields();
         setIsCreateModalOpen(true);
@@ -162,13 +154,11 @@ export const ExercisesLibrary = () => {
         setSubmitting(false);
     };
 
-    // Создание упражнения в Firebase (ID генерируется автоматически)
     const handleCreate = async (values: Exercise) => {
         try {
             setSubmitting(true);
             const exercisesRef = collection(db, 'exercises');
 
-            // Подготавливаем данные, удаляя пустые поля
             const newExerciseData: Omit<Exercise, 'id'> = {
                 title: values.title,
                 muscleGroup: values.muscleGroup,
@@ -177,26 +167,20 @@ export const ExercisesLibrary = () => {
                 updatedAt: new Date(),
             };
 
-            // Добавляем videoUrl только если он есть и не пустой
             if (values.videoUrl && values.videoUrl.trim() !== '') {
                 newExerciseData.videoUrl = values.videoUrl;
             }
 
-            // Firebase автоматически сгенерирует ID при добавлении документа
             const docRef = await addDoc(exercisesRef, newExerciseData);
 
-            // Создаем объект упражнения с ID из Firebase
             const createdExercise: Exercise = {
-                id: docRef.id, // Используем ID из Firebase
+                id: docRef.id,
                 ...newExerciseData,
-                // Добавляем videoUrl с пустой строкой по умолчанию, если его нет
                 videoUrl: newExerciseData.videoUrl || '',
             };
 
-            // Обновляем локальное состояние
             setExercises((prev) => [createdExercise, ...prev]);
 
-            // Обновляем список групп мышц
             const updatedMuscleGroups = getMuscleGroupsFromExercises([
                 createdExercise,
                 ...exercises,
@@ -213,7 +197,6 @@ export const ExercisesLibrary = () => {
         }
     };
 
-    // Редактирование упражнения в Firebase
     const handleEdit = async (values: Exercise) => {
         if (!currentExercise) return;
 
@@ -221,7 +204,6 @@ export const ExercisesLibrary = () => {
             setSubmitting(true);
             const exerciseRef = doc(db, 'exercises', currentExercise.id);
 
-            // Подготавливаем данные для обновления
             const updatedData: Omit<Exercise, 'id'> = {
                 title: values.title,
                 muscleGroup: values.muscleGroup,
@@ -229,17 +211,14 @@ export const ExercisesLibrary = () => {
                 updatedAt: new Date(),
             };
 
-            // Добавляем videoUrl только если он есть и не пустой
             if (values.videoUrl && values.videoUrl.trim() !== '') {
                 updatedData.videoUrl = values.videoUrl;
             } else {
-                // Если поле пустое, удаляем его из базы
                 updatedData.videoUrl = '';
             }
 
             await updateDoc(exerciseRef, updatedData);
 
-            // Обновляем локальное состояние
             setExercises((prev) =>
                 prev.map((ex) =>
                     ex.id === currentExercise.id
@@ -252,7 +231,6 @@ export const ExercisesLibrary = () => {
                 )
             );
 
-            // Обновляем список групп мышц
             const updatedMuscleGroups = getMuscleGroupsFromExercises(
                 exercises.map((ex) =>
                     ex.id === currentExercise.id
@@ -276,7 +254,6 @@ export const ExercisesLibrary = () => {
         }
     };
 
-    // Удаление упражнения из Firebase
     const handleDelete = async () => {
         if (!currentExercise) return;
 
@@ -285,10 +262,8 @@ export const ExercisesLibrary = () => {
             const exerciseRef = doc(db, 'exercises', currentExercise.id);
             await deleteDoc(exerciseRef);
 
-            // Обновляем локальное состояние
             setExercises((prev) => prev.filter((ex) => ex.id !== currentExercise.id));
 
-            // Обновляем список групп мышц
             const updatedMuscleGroups = getMuscleGroupsFromExercises(
                 exercises.filter((ex) => ex.id !== currentExercise.id)
             );
@@ -332,7 +307,6 @@ export const ExercisesLibrary = () => {
                 </Button>
             </div>
 
-            {/* Фильтры */}
             <div className={styles.filters}>
                 <Space size="middle" wrap>
                     <div className={styles.filterItem}>
@@ -382,7 +356,6 @@ export const ExercisesLibrary = () => {
                 </div>
             </div>
 
-            {/* Аккордеон со списком упражнений */}
             <div className={styles.accordionContainer}>
                 {filteredExercises.length > 0 ? (
                     <Collapse
@@ -454,7 +427,6 @@ export const ExercisesLibrary = () => {
                                         <div>Дополнительных данных нет</div>
                                     )}
 
-                                    {/* Описание */}
                                     {exercise.description && (
                                         <div className={styles.descriptionSection}>
                                             <h4 className={styles.sectionTitle}>
@@ -466,7 +438,6 @@ export const ExercisesLibrary = () => {
                                         </div>
                                     )}
 
-                                    {/* Видео */}
                                     {exercise.videoUrl && (
                                         <div className={styles.videoSection}>
                                             <h4 className={styles.sectionTitle}>
@@ -508,7 +479,6 @@ export const ExercisesLibrary = () => {
                 )}
             </div>
 
-            {/* Модалка создания упражнения */}
             <Modal
                 title="Создать новое упражнение"
                 open={isCreateModalOpen}
@@ -574,7 +544,6 @@ export const ExercisesLibrary = () => {
                 </Form>
             </Modal>
 
-            {/* Модалка редактирования упражнения */}
             <Modal
                 title="Редактировать упражнение"
                 open={isEditModalOpen}
@@ -629,7 +598,6 @@ export const ExercisesLibrary = () => {
                 )}
             </Modal>
 
-            {/* Модалка удаления упражнения */}
             <Modal
                 title="Удалить упражнение"
                 open={isDeleteModalOpen}

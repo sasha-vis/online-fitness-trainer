@@ -56,7 +56,6 @@ interface Dish {
     updatedAt?: Date;
 }
 
-// Получение уникальных категорий из блюд
 const getCategoriesFromDishes = (dishes: Dish[]) => {
     return Array.from(new Set(dishes.map((dish) => dish.category))).sort();
 };
@@ -70,14 +69,12 @@ export const MealsLibrary = () => {
     const [categories, setCategories] = useState<string[]>([]);
     const [submitting, setSubmitting] = useState(false);
 
-    // Состояния для модалок
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [currentDish, setCurrentDish] = useState<Dish | null>(null);
     const [form] = Form.useForm();
 
-    // Загрузка блюд из Firebase
     const fetchDishes = async () => {
         try {
             setLoading(true);
@@ -89,7 +86,7 @@ export const MealsLibrary = () => {
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 dishesData.push({
-                    id: doc.id, // ID документа из Firebase
+                    id: doc.id,
                     name: data.name,
                     calories: data.calories,
                     protein: data.protein,
@@ -119,7 +116,6 @@ export const MealsLibrary = () => {
         fetchDishes();
     }, []);
 
-    // Фильтрация блюд
     const filteredDishes = useMemo(() => {
         return dishes.filter((dish) => {
             const matchesSearch =
@@ -133,17 +129,14 @@ export const MealsLibrary = () => {
         });
     }, [dishes, searchText, selectedCategory]);
 
-    // Обработчик аккордеона
     const handleAccordionChange = (keys: string | string[]) => {
         setActiveKeys(Array.isArray(keys) ? keys : [keys]);
     };
 
-    // Открытие рецепта в новой вкладке
     const openRecipe = (url: string) => {
         window.open(url.replace('/embed/', '/watch?v='), '_blank');
     };
 
-    // Модалки
     const showCreateModal = () => {
         form.resetFields();
         setIsCreateModalOpen(true);
@@ -180,13 +173,11 @@ export const MealsLibrary = () => {
         setSubmitting(false);
     };
 
-    // Создание блюда в Firebase (ID генерируется автоматически)
     const handleCreate = async (values: Dish) => {
         try {
             setSubmitting(true);
             const dishesRef = collection(db, 'meals');
 
-            // Подготавливаем данные, удаляя пустые поля
             const newDishData: Omit<Dish, 'id'> = {
                 name: values.name,
                 calories: Number(values.calories),
@@ -201,26 +192,20 @@ export const MealsLibrary = () => {
                 updatedAt: new Date(),
             };
 
-            // Добавляем recipeUrl только если он есть и не пустой
             if (values.recipeUrl && values.recipeUrl.trim() !== '') {
                 newDishData.recipeUrl = values.recipeUrl;
             }
 
-            // Firebase автоматически сгенерирует ID при добавлении документа
             const docRef = await addDoc(dishesRef, newDishData);
 
-            // Создаем объект блюда с ID из Firebase
             const createdDish: Dish = {
-                id: docRef.id, // Используем ID из Firebase
+                id: docRef.id,
                 ...newDishData,
-                // Добавляем recipeUrl с пустой строкой по умолчанию, если его нет
                 recipeUrl: newDishData.recipeUrl || '',
             };
 
-            // Обновляем локальное состояние
             setDishes((prev) => [createdDish, ...prev]);
 
-            // Обновляем список категорий
             const updatedCategories = getCategoriesFromDishes([createdDish, ...dishes]);
             setCategories(updatedCategories);
 
@@ -234,7 +219,6 @@ export const MealsLibrary = () => {
         }
     };
 
-    // Редактирование блюда в Firebase
     const handleEdit = async (values: Dish) => {
         if (!currentDish) return;
 
@@ -242,7 +226,6 @@ export const MealsLibrary = () => {
             setSubmitting(true);
             const dishRef = doc(db, 'meals', currentDish.id);
 
-            // Подготавливаем данные для обновления
             const updatedData: Omit<Dish, 'id'> = {
                 name: values.name,
                 calories: Number(values.calories),
@@ -256,17 +239,14 @@ export const MealsLibrary = () => {
                 updatedAt: new Date(),
             };
 
-            // Добавляем recipeUrl только если он есть и не пустой
             if (values.recipeUrl && values.recipeUrl.trim() !== '') {
                 updatedData.recipeUrl = values.recipeUrl;
             } else {
-                // Если поле пустое, удаляем его из базы
                 updatedData.recipeUrl = '';
             }
 
             await updateDoc(dishRef, updatedData);
 
-            // Обновляем локальное состояние
             setDishes((prev) =>
                 prev.map((dish) =>
                     dish.id === currentDish.id
@@ -279,7 +259,6 @@ export const MealsLibrary = () => {
                 )
             );
 
-            // Обновляем список категорий
             const updatedCategories = getCategoriesFromDishes(
                 dishes.map((dish) =>
                     dish.id === currentDish.id
@@ -303,7 +282,6 @@ export const MealsLibrary = () => {
         }
     };
 
-    // Удаление блюда из Firebase
     const handleDelete = async () => {
         if (!currentDish) return;
 
@@ -312,10 +290,8 @@ export const MealsLibrary = () => {
             const dishRef = doc(db, 'meals', currentDish.id);
             await deleteDoc(dishRef);
 
-            // Обновляем локальное состояние
             setDishes((prev) => prev.filter((dish) => dish.id !== currentDish.id));
 
-            // Обновляем список категорий
             const updatedCategories = getCategoriesFromDishes(
                 dishes.filter((dish) => dish.id !== currentDish.id)
             );
@@ -359,7 +335,6 @@ export const MealsLibrary = () => {
                 </Button>
             </div>
 
-            {/* Фильтры */}
             <div className={styles.filters}>
                 <Space size="middle" wrap>
                     <div className={styles.filterItem}>
@@ -409,7 +384,6 @@ export const MealsLibrary = () => {
                 </div>
             </div>
 
-            {/* Аккордеон со списком блюд */}
             <div className={styles.accordionContainer}>
                 {filteredDishes.length > 0 ? (
                     <Collapse
@@ -511,7 +485,6 @@ export const MealsLibrary = () => {
                                 className={styles.dishPanel}
                             >
                                 <div className={styles.panelContent}>
-                                    {/* Описание */}
                                     {dish.description && (
                                         <div className={styles.descriptionSection}>
                                             <h4 className={styles.sectionTitle}>
@@ -523,7 +496,6 @@ export const MealsLibrary = () => {
                                         </div>
                                     )}
 
-                                    {/* Питательная ценность */}
                                     <div className={styles.nutritionSection}>
                                         <h4 className={styles.sectionTitle}>
                                             <FireOutlined /> Пищевая ценность на порцию
@@ -564,7 +536,6 @@ export const MealsLibrary = () => {
                                         </div>
                                     </div>
 
-                                    {/* Видео рецепта */}
                                     {dish.recipeUrl && (
                                         <div className={styles.videoSection}>
                                             <h4 className={styles.sectionTitle}>
@@ -604,7 +575,6 @@ export const MealsLibrary = () => {
                 )}
             </div>
 
-            {/* Модалка создания блюда */}
             <Modal
                 title="Создать новое блюдо"
                 open={isCreateModalOpen}
@@ -771,7 +741,6 @@ export const MealsLibrary = () => {
                 </Form>
             </Modal>
 
-            {/* Модалка редактирования блюда */}
             <Modal
                 title="Редактировать блюдо"
                 open={isEditModalOpen}
@@ -938,7 +907,6 @@ export const MealsLibrary = () => {
                 )}
             </Modal>
 
-            {/* Модалка удаления блюда */}
             <Modal
                 title="Удалить блюдо"
                 open={isDeleteModalOpen}

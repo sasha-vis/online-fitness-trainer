@@ -76,18 +76,6 @@ export const BodyMeasurementModal: React.FC<BodyMeasurementModalProps> = ({
                         <InputNumber min={0} style={{ width: '100%' }} />
                     </Form.Item>
                 ))}
-                {/* <Form.Item label="Фото">
-          <Upload
-            listType="picture"
-            fileList={fileList}
-            beforeUpload={() => false}
-            onChange={({ fileList }) => setFileList(fileList)}
-            multiple
-            accept="image/*"
-          >
-            <Button icon={<PlusOutlined />}>Загрузить фото</Button>
-          </Upload>
-        </Form.Item> */}
             </Form>
         </Modal>
     );

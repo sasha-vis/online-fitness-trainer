@@ -46,7 +46,7 @@ export const SignupForm = () => {
     };
 
     const validatePhotoSize = (files: File[]): boolean => {
-        const maxSize = 500 * 1024; // 500 KB
+        const maxSize = 500 * 1024;
         const oversized = files.find((file) => file.size > maxSize);
         if (oversized) {
             alert(`Фото "${oversized.name}" слишком большое. Максимум 500 КБ.`);

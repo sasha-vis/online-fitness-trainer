@@ -5,7 +5,7 @@ import { UserOutlined, UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/shared/stores';
-import { signOut as firebaseSignOut } from 'firebase/auth';
+import { AuthError, signOut as firebaseSignOut } from 'firebase/auth';
 import { getUserByUid, getUserInfo, updateUserByUid } from './api-user-firebase.ts';
 import { onAuthStateChanged } from 'firebase/auth';
 import { IUser, IUserInfo } from '@pages/personal-account/types.ts';
@@ -158,33 +158,39 @@ export const PersonalAccount: React.FC = () => {
 
             passwordForm.resetFields();
             message.success('Пароль успешно изменён');
-        } catch (error: any) {
-            switch (error.code) {
-                case 'auth/wrong-password':
-                    passwordForm.setFields([
-                        {
-                            name: 'oldPassword',
-                            errors: ['Неверный текущий пароль'],
-                        },
-                    ]);
-                    break;
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                const authError = error as AuthError;
+                switch (authError.code) {
+                    case 'auth/wrong-password':
+                        passwordForm.setFields([
+                            {
+                                name: 'oldPassword',
+                                errors: ['Неверный текущий пароль'],
+                            },
+                        ]);
+                        break;
 
-                case 'auth/weak-password':
-                    passwordForm.setFields([
-                        {
-                            name: 'newPassword',
-                            errors: ['Пароль слишком простой'],
-                        },
-                    ]);
-                    break;
+                    case 'auth/weak-password':
+                        passwordForm.setFields([
+                            {
+                                name: 'newPassword',
+                                errors: ['Пароль слишком простой'],
+                            },
+                        ]);
+                        break;
 
-                case 'auth/requires-recent-login':
-                    message.error('Пожалуйста, войдите заново и повторите попытку');
-                    break;
+                    case 'auth/requires-recent-login':
+                        message.error('Пожалуйста, войдите заново и повторите попытку');
+                        break;
 
-                default:
-                    console.error(error);
-                    message.error('Ошибка при смене пароля');
+                    default:
+                        console.error(error);
+                        message.error('Ошибка при смене пароля');
+                }
+            } else {
+                console.error('Unknown error:', error);
+                message.error('Неизвестная ошибка при смене пароля');
             }
         }
     };

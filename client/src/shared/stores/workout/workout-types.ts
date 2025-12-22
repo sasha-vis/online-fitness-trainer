@@ -2,11 +2,10 @@ export interface Exercise {
     name: string;
     reps: string;
     description?: string;
-    rest?: number; // Добавляем rest, если используется
-    count?: number; // Добавляем count для повторений (если нужно)
+    rest?: number;
+    count?: number;
 }
 
-// Тип для шаблона тренировки
 export interface WorkoutTemplate {
     id?: string;
     name: string;
@@ -16,7 +15,6 @@ export interface WorkoutTemplate {
     updatedAt?: Date;
 }
 
-// Тип для плана тренировки
 export interface WorkoutPlan {
     id?: string;
     name: string;
@@ -30,12 +28,10 @@ export interface WorkoutListItem {
     name: string;
     description: string;
     exercises: Exercise[];
-    // Дополнительные поля если есть в данных
     rest?: number;
     comments?: string;
 }
 
-// Тип для пропсов компонента WorkoutList
 export interface WorkoutListProps {
     list: WorkoutListItem[];
     title: string;
@@ -43,14 +39,12 @@ export interface WorkoutListProps {
     onDelete: (id: string) => void;
 }
 
-// Тип для формы модального окна
 export interface WorkoutFormData {
     name: string;
     description: string;
     exercises: Exercise[];
 }
 
-// Тип для пропсов модального окна
 export interface WorkoutModalProps {
     visible: boolean;
     onClose: () => void;
@@ -59,7 +53,6 @@ export interface WorkoutModalProps {
     predefinedOptions: Pick<WorkoutTemplate, 'name' | 'description' | 'exercises'>[];
 }
 
-// Тип для стора шаблонов
 export interface TemplatesStore {
     templates: WorkoutTemplate[];
     addTemplate: (data: Omit<WorkoutTemplate, 'id' | 'createdAt'>) => Promise<void>;
@@ -70,7 +63,6 @@ export interface TemplatesStore {
     deleteTemplate: (id: string) => Promise<void>;
 }
 
-// Тип для стора планов
 export interface PlansStore {
     plans: WorkoutPlan[];
     addPlan: (data: Omit<WorkoutPlan, 'id' | 'createdAt'>) => Promise<void>;

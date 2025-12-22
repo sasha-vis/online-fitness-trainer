@@ -17,7 +17,6 @@ export const ReportsPage = () => {
         useProgressStore();
 
     useEffect(() => {
-        // if (user?.uid) subscribe(user.uid);
         if (user?.id) subscribe(user.id);
     }, [user, subscribe]);
 
